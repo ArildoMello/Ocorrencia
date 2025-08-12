@@ -180,7 +180,7 @@
       $('#loading').classList.remove('hidden');
       $('#parseWarn').classList.add('hidden');
       try {
-        const sheetId = '1dBnxFmhvM9vxNDzqglmhiWM0-D9nUY7F5y5C8PQONVQ';
+        const sheetId = '1JB-orpGTvhL1iEGCgTtXpLl4awO7A0zcpFSMZSRE5xU';
         const csvUrl = `https://corsproxy.io/?${encodeURIComponent(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`)}`;
         const response = await fetch(csvUrl);
         if (!response.ok) throw new Error('Falha ao obter o CSV do Google Sheets.');
