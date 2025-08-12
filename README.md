@@ -1,1 +1,1 @@
-/ocorrencia/index.html
+/index.html
