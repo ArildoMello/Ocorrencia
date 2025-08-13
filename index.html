@@ -71,42 +71,213 @@
     .hidden { display:none }
     .footer { margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end }
 
-    @media (max-width:720px){ .row { flex-direction:column; align-items:flex-start } .stats { width:100%; justify-content:space-between } }
+    /* ===== Menu Lateral (Sidebar) ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 60px;
+      height: 100vh;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+      padding: 20px 10px;
+      box-shadow: 10px 0 20px rgba(0,0,0,.3);
+      z-index: 10;
+      overflow-y: auto;
+      border-right: 1px solid var(--glass-2);
+      transition: width .3s ease;
+    }
+    .sidebar.expanded {
+      width: 250px;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--grad-a) 0%, var(--grad-b) 50%, var(--grad-c) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 18px rgba(0,230,255,.22);
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+    .sidebar.expanded .logo h2 {
+      opacity: 1;
+    }
+    .menu-list {
+      list-style: none;
+    }
+    .menu-item {
+      margin-bottom: 10px;
+    }
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      transition: .25s;
+      background: rgba(16,22,60,.6);
+      border: 1px solid rgba(120,160,255,.22);
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    }
+    .menu-link:hover, .menu-link.active {
+      background: linear-gradient(135deg, var(--grad-a), var(--grad-b));
+      box-shadow: var(--glow);
+      color: #fff;
+    }
+    .menu-link:hover {
+      translate: 0 -2px;
+    }
+    .menu-link span {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+      transition: opacity .3s ease, width .3s ease;
+    }
+    .sidebar.expanded .menu-link span {
+      opacity: 1;
+      width: auto;
+    }
+    .main-content {
+      margin-left: 60px;
+      padding: 20px;
+      transition: margin-left .3s ease;
+    }
+    .sidebar.expanded ~ .main-content {
+      margin-left: 250px;
+    }
+    .menu-toggle {
+      display: block;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 11;
+      background: var(--grad-b);
+      border: none;
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: var(--glow);
+    }
+    @media (max-width: 1024px) {
+      .sidebar.expanded {
+        width: 200px;
+      }
+      .sidebar.expanded ~ .main-content {
+        margin-left: 200px;
+      }
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 60px;
+        left: -60px;
+        transition: left .3s ease;
+      }
+      .sidebar.expanded {
+        left: 0;
+        width: 100%;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+      .sidebar.expanded ~ .main-content {
+        margin-left: 0;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Ocorrências Atendidas em <span id="yearText">2025</span></h1>
-      <div class="subtitle">Sistema de análise e monitoramento de ocorrências</div>
+  <!-- Menu Lateral -->
+  <nav class="sidebar">
+    <div class="logo">
+      <h2>Ocorrências</h2>
     </div>
+    <ul class="menu-list">
+      <li class="menu-item">
+        <a href="#inicial" class="menu-link active" data-section="inicial">🏠 <span>Inicial</span></a>
+      </li>
+      <li class="menu-item">
+        <a href="#drogas" class="drogas.html" data-section="drogas">💊 <span>Drogas Apreendidas</span></a>
+      </li>
+      <li class="menu-item">
+        <a href="#regioes" class="menu-link" data-section="regioes">🌍 <span>Regiões</span></a>
+      </li>
+      <li class="menu-item">
+        <a href="#horarios" class="menu-link" data-section="horarios">⏰ <span>Horários</span></a>
+      </li>
+      <li class="menu-item">
+        <a href="#equipes" class="menu-link" data-section="equipes">👥 <span>Equipes</span></a>
+      </li>
+    </ul>
+  </nav>
 
-    <div id="drop" class="upload" aria-label="Área de carregamento de dados">
-      <h3>⏳ Carregando dados do CSV...</h3>
-      <p>Os dados estão sendo obtidos diretamente do Google Sheets.</p>
-      <div id="loading" class="ghost" style="margin-top:10px; font-weight:800">⏳ Processando dados…</div>
-      <div id="parseWarn" class="ghost hidden" style="margin-top:8px"></div>
+  <!-- Botão para toggle menu -->
+  <button class="menu-toggle" id="menuToggle">☰</button>
+
+  <!-- Conteúdo Principal -->
+  <main class="main-content">
+    <div class="container">
+      <div class="header">
+        <h1>Ocorrências Atendidas em <span id="yearText">2025</span></h1>
+        <div class="subtitle">Sistema de análise e monitoramento de ocorrências</div>
+      </div>
+
+      <div id="drop" class="upload" aria-label="Área de carregamento de dados">
+        <h3>⏳ Carregando dados do CSV...</h3>
+        <p>Os dados estão sendo obtidos diretamente do Google Sheets.</p>
+        <div id="loading" class="ghost" style="margin-top:10px; font-weight:800">⏳ Processando dados…</div>
+        <div id="parseWarn" class="ghost hidden" style="margin-top:8px"></div>
+      </div>
+
+      <div id="tools" class="toolbar hidden" role="region" aria-label="Ferramentas">
+        <div class="tool">🔎 <input id="q" type="search" placeholder="Buscar por categoria ou tipo…" aria-label="Buscar" /></div>
+        <div class="tool"><small id="metaInfo">0 linhas</small></div>
+      </div>
+
+      <div id="cards" class="cards hidden"></div>
+
+      <section id="cats" class="panel hidden" aria-live="polite">
+        <div class="panel-hd">📋 Categorias</div>
+        <div id="catList"></div>
+      </section>
+
+      <section id="types" class="panel hidden">
+        <div class="panel-hd"><button id="back" class="btn" type="button">← Voltar</button> <span id="catTitle" style="font-weight:900"></span></div>
+        <div id="typeList"></div>
+      </section>
+
+      <div class="footer hidden" id="totals"></div>
+
+      <!-- Placeholders para as outras seções -->
+      <section id="drogas-section" class="panel hidden">
+        <div class="panel-hd">💊 Drogas Apreendidas</div>
+        <div>Conteúdo a ser implementado...</div>
+      </section>
+
+      <section id="regioes-section" class="panel hidden">
+        <div class="panel-hd">🌍 Regiões</div>
+        <div>Conteúdo a ser implementado...</div>
+      </section>
+
+      <section id="horarios-section" class="panel hidden">
+        <div class="panel-hd">⏰ Horários</div>
+        <div>Conteúdo a ser implementado...</div>
+      </section>
+
+      <section id="equipes-section" class="panel hidden">
+        <div class="panel-hd">👥 Equipes</div>
+        <div>Conteúdo a ser implementado...</div>
+      </section>
     </div>
-
-    <div id="tools" class="toolbar hidden" role="region" aria-label="Ferramentas">
-      <div class="tool">🔎 <input id="q" type="search" placeholder="Buscar por categoria ou tipo…" aria-label="Buscar" /></div>
-      <div class="tool"><small id="metaInfo">0 linhas</small></div>
-    </div>
-
-    <div id="cards" class="cards hidden"></div>
-
-    <section id="cats" class="panel hidden" aria-live="polite">
-      <div class="panel-hd">📋 Categorias</div>
-      <div id="catList"></div>
-    </section>
-
-    <section id="types" class="panel hidden">
-      <div class="panel-hd"><button id="back" class="btn" type="button">← Voltar</button> <span id="catTitle" style="font-weight:900"></span></div>
-      <div id="typeList"></div>
-    </section>
-
-    <div class="footer hidden" id="totals"></div>
-  </div>
+  </main>
 
   <script>
     // ===== Estado =====
@@ -211,6 +382,53 @@
 
     // Carrega o CSV automaticamente ao iniciar
     window.addEventListener('load', fetchCSV);
+
+    // ===== Menu Interativo =====
+    const menuLinks = document.querySelectorAll('.menu-link');
+    const sections = {
+      inicial: ['#tools', '#cards', '#cats', '#types', '#totals'],
+      drogas: ['#drogas-section'],
+      regioes: ['#regioes-section'],
+      horarios: ['#horarios-section'],
+      equipes: ['#equipes-section']
+    };
+
+    function showSection(sectionId) {
+      // Esconde todas as seções
+      Object.values(sections).flat().forEach(sel => {
+        const elem = $(sel);
+        if (elem) elem.classList.add('hidden');
+      });
+      // Mostra a seção selecionada
+      sections[sectionId].forEach(sel => {
+        const elem = $(sel);
+        if (elem) elem.classList.remove('hidden');
+      });
+      // Atualiza classe active no menu
+      menuLinks.forEach(link => link.classList.remove('active'));
+      document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+    }
+
+    menuLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const sectionId = link.dataset.section;
+        showSection(sectionId);
+      });
+    });
+
+    // Toggle menu
+    const menuToggle = $('#menuToggle');
+    const sidebar = $('.sidebar');
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('expanded');
+      if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('open');
+      }
+    });
+
+    // Inicialmente mostra a seção inicial
+    showSection('inicial');
   </script>
 </body>
 </html>
