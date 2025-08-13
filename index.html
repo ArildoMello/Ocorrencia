@@ -86,128 +86,60 @@
       border-right: 1px solid var(--glass-2);
       transition: width .3s ease;
     }
-    .sidebar.expanded {
-      width: 250px;
-    }
-    .logo {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+    .sidebar.expanded { width: 250px; }
+    .logo { text-align: center; margin-bottom: 30px; }
     .logo h2 {
-      font-size: 1.5rem;
-      font-weight: 900;
+      font-size: 1.5rem; font-weight: 900;
       background: linear-gradient(135deg, var(--grad-a) 0%, var(--grad-b) 50%, var(--grad-c) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 2px 18px rgba(0,230,255,.22);
-      opacity: 0;
-      transition: opacity .3s ease;
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 18px rgba(0,230,255,.22); opacity: 0; transition: opacity .3s ease;
     }
-    .sidebar.expanded .logo h2 {
-      opacity: 1;
-    }
-    .menu-list {
-      list-style: none;
-    }
-    .menu-item {
-      margin-bottom: 10px;
-    }
+    .sidebar.expanded .logo h2 { opacity: 1; }
+    .menu-list { list-style: none; }
+    .menu-item { margin-bottom: 10px; }
     .menu-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      border-radius: 12px;
-      color: var(--text);
-      text-decoration: none;
-      font-weight: 700;
-      transition: .25s;
-      background: rgba(16,22,60,.6);
-      border: 1px solid rgba(120,160,255,.22);
-      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+      border-radius: 12px; color: var(--text); text-decoration: none; font-weight: 700; transition: .25s;
+      background: rgba(16,22,60,.6); border: 1px solid rgba(120,160,255,.22); box-shadow: 0 4px 12px rgba(0,0,0,.2);
     }
-    .menu-link:hover, .menu-link.active {
-      background: linear-gradient(135deg, var(--grad-a), var(--grad-b));
-      box-shadow: var(--glow);
-      color: #fff;
-    }
-    .menu-link:hover {
-      translate: 0 -2px;
-    }
-    .menu-link span {
-      opacity: 0;
-      width: 0;
-      overflow: hidden;
-      transition: opacity .3s ease, width .3s ease;
-    }
-    .sidebar.expanded .menu-link span {
-      opacity: 1;
-      width: auto;
-    }
-    .main-content {
-      margin-left: 60px;
-      padding: 20px;
-      transition: margin-left .3s ease;
-    }
-    .sidebar.expanded ~ .main-content {
-      margin-left: 250px;
-    }
+    .menu-link:hover, .menu-link.active { background: linear-gradient(135deg, var(--grad-a), var(--grad-b)); box-shadow: var(--glow); color: #fff; }
+    .menu-link:hover { translate: 0 -2px; }
+    .menu-link span { opacity: 0; width: 0; overflow: hidden; transition: opacity .3s ease, width .3s ease; }
+    .sidebar.expanded .menu-link span { opacity: 1; width: auto; }
+    .main-content { margin-left: 60px; padding: 20px; transition: margin-left .3s ease; }
+    .sidebar.expanded ~ .main-content { margin-left: 250px; }
+
     .menu-toggle {
-      display: block;
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 11;
-      background: var(--grad-b);
-      border: none;
-      color: #fff;
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: var(--glow);
+      display: block; position: fixed; top: 20px; left: 20px; z-index: 11;
+      background: var(--grad-b); border: none; color: #fff; padding: 10px; border-radius: 8px; cursor: pointer; box-shadow: var(--glow);
     }
+
     @media (max-width: 1024px) {
-      .sidebar.expanded {
-        width: 200px;
-      }
-      .sidebar.expanded ~ .main-content {
-        margin-left: 200px;
-      }
+      .sidebar.expanded { width: 200px; }
+      .sidebar.expanded ~ .main-content { margin-left: 200px; }
     }
     @media (max-width: 768px) {
-      .sidebar {
-        width: 60px;
-        left: -60px;
-        transition: left .3s ease;
-      }
-      .sidebar.expanded {
-        left: 0;
-        width: 100%;
-      }
-      .main-content {
-        margin-left: 0;
-      }
-      .sidebar.expanded ~ .main-content {
-        margin-left: 0;
-      }
+      .sidebar { width: 60px; left: -60px; transition: left .3s ease; }
+      .sidebar.expanded { left: 0; width: 100%; }
+      .main-content { margin-left: 0; }
+      .sidebar.expanded ~ .main-content { margin-left: 0; }
     }
   </style>
 </head>
 <body>
   <!-- Menu Lateral -->
-  <nav class="sidebar">
-    <div class="logo">
-      <h2>Ocorrências</h2>
-    </div>
+  <nav class="sidebar" aria-label="Menu lateral">
+    <div class="logo"><h2>Ocorrências</h2></div>
     <ul class="menu-list">
       <li class="menu-item">
         <a href="#inicial" class="menu-link active" data-section="inicial">🏠 <span>Inicial</span></a>
       </li>
+
+      <!-- Link EXTERNO: abre drogas.html (não é interceptado pelo JS) -->
       <li class="menu-item">
-      <!-- antes: href="#drogas" -->
-        <a href="https://arildomello.github.io/Ocorrencia/drogas.html" class="menu-link external" data-section="drogas">💊 <span>Drogas Apreendidas</span></a>
+        <a href="/Ocorrencia/drogas.html" class="menu-link external">💊 <span>Drogas Apreendidas</span></a>
       </li>
+
       <li class="menu-item">
         <a href="#regioes" class="menu-link" data-section="regioes">🌍 <span>Regiões</span></a>
       </li>
@@ -221,10 +153,10 @@
   </nav>
 
   <!-- Botão para toggle menu -->
-  <button class="menu-toggle" id="menuToggle">☰</button>
+  <button class="menu-toggle" id="menuToggle" aria-label="Abrir/fechar menu">☰</button>
 
   <!-- Conteúdo Principal -->
-  <main class="main-content">
+  <main class="main-content" id="conteudo">
     <div class="container">
       <div class="header">
         <h1>Ocorrências Atendidas em <span id="yearText">2025</span></h1>
@@ -257,12 +189,7 @@
 
       <div class="footer hidden" id="totals"></div>
 
-      <!-- Placeholders para as outras seções -->
-      <section id="drogas-section" class="panel hidden">
-        <div class="panel-hd">💊 Drogas Apreendidas</div>
-        <div>Conteúdo a ser implementado...</div>
-      </section>
-
+      <!-- Placeholders para seções internas -->
       <section id="regioes-section" class="panel hidden">
         <div class="panel-hd">🌍 Regiões</div>
         <div>Conteúdo a ser implementado...</div>
@@ -323,27 +250,145 @@
       return result.data.filter(r=> Array.isArray(r) && r.some(c=> String(c).trim()!=='') );
     }
 
-    function detectHeader(r){ if(!r.length) return false; const first=r[0].map(x=>String(x||'').toLowerCase()); const keys=['tipo','categoria','ocorr','ocorrência','ocorrencias','ocorrencias','maiores','menores']; return keys.some(k=> first.some(c=>c.includes(k))); }
+    function detectHeader(r){
+      if(!r.length) return false;
+      const first=r[0].map(x=>String(x||'').toLowerCase());
+      const keys=['tipo','categoria','ocorr','ocorrência','ocorrencias','maiores','menores'];
+      return keys.some(k=> first.some(c=>c.includes(k)));
+    }
 
-    function normalizeData(r){ const hasHeader=detectHeader(r); if(hasHeader) r=r.slice(1); data = r.map(cols=>{ const c=[...cols]; while(c.length<5) c.push(''); const [tipo,categoria,ocorr,mai,men]=c.slice(0,5); return { tipo:cleanText(tipo), categoria:cleanText(categoria), ocorrencias:numberize(ocorr), detidosMaiores:numberize(mai), menores:numberize(men)}; }).filter(x=>x.tipo && x.categoria); }
+    function normalizeData(r){
+      const hasHeader=detectHeader(r);
+      if(hasHeader) r=r.slice(1);
+      data = r.map(cols=>{
+        const c=[...cols]; while(c.length<5) c.push('');
+        const [tipo,categoria,ocorr,mai,men]=c.slice(0,5);
+        return {
+          tipo:cleanText(tipo),
+          categoria:cleanText(categoria),
+          ocorrencias:numberize(ocorr),
+          detidosMaiores:numberize(mai),
+          menores:numberize(men)
+        };
+      }).filter(x=>x.tipo && x.categoria);
+    }
 
-    function aggregate(){ grouped={}; for(const row of data){ const cat=row.categoria; if(!grouped[cat]) grouped[cat]={tipos:{}, quantidadeTipos:0, totalOcorrencias:0, totalDetidosMaiores:0, totalMenores:0}; const g=grouped[cat]; if(!g.tipos[row.tipo]){ g.tipos[row.tipo]={ocorrencias:0,detidosMaiores:0,menores:0}; g.quantidadeTipos++; } g.tipos[row.tipo].ocorrencias+=row.ocorrencias; g.tipos[row.tipo].detidosMaiores+=row.detidosMaiores; g.tipos[row.tipo].menores+=row.menores; g.totalOcorrencias+=row.ocorrencias; g.totalDetidosMaiores+=row.detidosMaiores; g.totalMenores+=row.menores; } }
+    function aggregate(){
+      grouped={};
+      for(const row of data){
+        const cat=row.categoria;
+        if(!grouped[cat]) grouped[cat]={tipos:{}, quantidadeTipos:0, totalOcorrencias:0, totalDetidosMaiores:0, totalMenores:0};
+        const g=grouped[cat];
+        if(!g.tipos[row.tipo]){ g.tipos[row.tipo]={ocorrencias:0,detidosMaiores:0,menores:0}; g.quantidadeTipos++; }
+        g.tipos[row.tipo].ocorrencias+=row.ocorrencias;
+        g.tipos[row.tipo].detidosMaiores+=row.detidosMaiores;
+        g.tipos[row.tipo].menores+=row.menores;
+        g.totalOcorrencias+=row.ocorrencias;
+        g.totalDetidosMaiores+=row.detidosMaiores;
+        g.totalMenores+=row.menores;
+      }
+    }
 
     // ===== Render =====
-    function renderSummary(){ const cats=Object.keys(grouped); const totals=cats.reduce((a,k)=>{const g=grouped[k]; a.oc+=g.totalOcorrencias; a.ma+=g.totalDetidosMaiores; a.me+=g.totalMenores; return a;},{oc:0,ma:0,me:0}); const wrap=$('#cards'); wrap.innerHTML=''; wrap.append(createCard(cats.length,'Categorias'), createCard(totals.oc,'Total Ocorrências'), createCard(totals.ma,'Detidos Maiores'), createCard(totals.me,'Menores')); $('#totals').innerHTML=''; const f=$('#totals'); f.append(makePill('Ocorrências',totals.oc), makePill('Maiores',totals.ma), makePill('Menores',totals.me)); $('#metaInfo').textContent = `${data.length} linhas | ${cats.length} categorias`; wrap.classList.remove('hidden'); $('#tools').classList.remove('hidden'); $('#cats').classList.remove('hidden'); $('#totals').classList.remove('hidden'); }
+    function renderSummary(){
+      const cats=Object.keys(grouped);
+      const totals=cats.reduce((a,k)=>{
+        const g=grouped[k]; a.oc+=g.totalOcorrencias; a.ma+=g.totalDetidosMaiores; a.me+=g.totalMenores; return a;
+      },{oc:0,ma:0,me:0});
+
+      const wrap=$('#cards'); wrap.innerHTML='';
+      wrap.append(createCard(cats.length,'Categorias'),
+                  createCard(totals.oc,'Total Ocorrências'),
+                  createCard(totals.ma,'Detidos Maiores'),
+                  createCard(totals.me,'Menores'));
+
+      $('#totals').innerHTML='';
+      const f=$('#totals');
+      f.append(makePill('Ocorrências',totals.oc),
+               makePill('Maiores',totals.ma),
+               makePill('Menores',totals.me));
+
+      $('#metaInfo').textContent = `${data.length} linhas | ${cats.length} categorias`;
+      wrap.classList.remove('hidden');
+      $('#tools').classList.remove('hidden');
+      $('#cats').classList.remove('hidden');
+      $('#totals').classList.remove('hidden');
+    }
 
     function createCard(val,label){ const c=el('div','card'); const h=el('h3'); h.textContent=val; c.appendChild(h); const p=el('p'); p.textContent=label; c.appendChild(p); return c; }
     function makePill(label,val){ const d=el('div','pill'); d.innerHTML=`${escapeHTML(label)}<br><b>${val}</b>`; return d; }
 
-    function renderCategories(filter=""){ const list=$('#catList'); list.innerHTML=''; const q=(filter||'').toLowerCase().trim(); const entries = Object.entries(grouped)
-      .filter(([cat,g])=>{ if(!q) return true; const matchCat = cat.toLowerCase().includes(q); const matchTipo = Object.keys(g.tipos).some(t=> t.toLowerCase().includes(q)); return matchCat || matchTipo; })
-      .sort(([,a],[,b])=> b.totalOcorrencias - a.totalOcorrencias);
+    function renderCategories(filter=""){
+      const list=$('#catList'); list.innerHTML='';
+      const q=(filter||'').toLowerCase().trim();
+      const entries = Object.entries(grouped)
+        .filter(([cat,g])=>{
+          if(!q) return true;
+          const matchCat = cat.toLowerCase().includes(q);
+          const matchTipo = Object.keys(g.tipos).some(t=> t.toLowerCase().includes(q));
+          return matchCat || matchTipo;
+        })
+        .sort(([,a],[,b])=> b.totalOcorrencias - a.totalOcorrencias);
 
-    for(const [cat,g] of entries){ const row=el('div','row'); row.role='button'; const left=el('div'); const name=el('div','name'); name.textContent=cat; left.appendChild(name); const sub=el('div','muted'); sub.textContent=`${g.quantidadeTipos} tipos`; left.appendChild(sub); const stats=el('div','stats'); stats.append(makePill('Ocorrências',g.totalOcorrencias), makePill('Maiores',g.totalDetidosMaiores), makePill('Menores',g.totalMenores)); row.append(left,stats); row.addEventListener('click',()=>showTypes(cat)); list.appendChild(row);} 
+      for(const [cat,g] of entries){
+        const row=el('div','row'); row.role='button';
+        const left=el('div');
+        const name=el('div','name'); name.textContent=cat; left.appendChild(name);
+        const sub=el('div','muted'); sub.textContent=`${g.quantidadeTipos} tipos`; left.appendChild(sub);
+        const stats=el('div','stats');
+        stats.append(makePill('Ocorrências',g.totalOcorrencias),
+                     makePill('Maiores',g.totalDetidosMaiores),
+                     makePill('Menores',g.totalMenores));
+        row.append(left,stats);
+        row.addEventListener('click',()=>showTypes(cat));
+        list.appendChild(row);
+      }
 
-    if(q && entries.length){ const totals = entries.reduce((acc,[,g])=>{ acc.oc+=g.totalOcorrencias; acc.ma+=g.totalDetidosMaiores; acc.me+=g.totalMenores; return acc; },{oc:0,ma:0,me:0}); const t=el('div','row'); const left=el('div'); const name=el('div','name'); name.textContent='📊 TOTAL FILTRADO'; left.appendChild(name); const sub=el('div','muted'); sub.textContent='Resumo das categorias filtradas'; left.appendChild(sub); const stats=el('div','stats'); stats.append(makePill('Ocorrências',totals.oc), makePill('Maiores',totals.ma), makePill('Menores',totals.me)); t.append(left,stats); list.appendChild(t);} }
+      if(q && entries.length){
+        const totals = entries.reduce((acc,[,g])=>{
+          acc.oc+=g.totalOcorrencias; acc.ma+=g.totalDetidosMaiores; acc.me+=g.totalMenores; return acc;
+        },{oc:0,ma:0,me:0});
+        const t=el('div','row');
+        const left=el('div');
+        const name=el('div','name'); name.textContent='📊 TOTAL FILTRADO'; left.appendChild(name);
+        const sub=el('div','muted'); sub.textContent='Resumo das categorias filtradas'; left.appendChild(sub);
+        const stats=el('div','stats');
+        stats.append(makePill('Ocorrências',totals.oc),
+                     makePill('Maiores',totals.ma),
+                     makePill('Menores',totals.me));
+        t.append(left,stats);
+        list.appendChild(t);
+      }
+    }
 
-    function showTypes(cat){ const g=grouped[cat]; if(!g) return; $('#types').classList.remove('hidden'); $('#cats').classList.add('hidden'); $('#catTitle').textContent=`Tipos da Categoria: ${cat}`; const list=$('#typeList'); list.innerHTML=''; const entries=Object.entries(g.tipos).sort(([,a],[,b])=> b.ocorrencias - a.ocorrencias); for(const [tipo,d] of entries){ const row=el('div','row'); const left=el('div'); const name=el('div','name'); name.textContent=tipo; left.appendChild(name); const stats=el('div','stats'); stats.append(makePill('Ocorrências',d.ocorrencias), makePill('Maiores',d.detidosMaiores), makePill('Menores',d.menores)); row.append(left,stats); list.appendChild(row);} const t=el('div','row'); const left=el('div'); const name=el('div','name'); name.textContent='📊 TOTAL DA CATEGORIA'; left.appendChild(name); const stats=el('div','stats'); stats.append(makePill('Ocorrências',g.totalOcorrencias), makePill('Maiores',g.totalDetidosMaiores), makePill('Menores',g.totalMenores)); t.append(left,stats); list.appendChild(t); }
+    function showTypes(cat){
+      const g=grouped[cat]; if(!g) return;
+      $('#types').classList.remove('hidden');
+      $('#cats').classList.add('hidden');
+      $('#catTitle').textContent=`Tipos da Categoria: ${cat}`;
+      const list=$('#typeList'); list.innerHTML='';
+      const entries=Object.entries(g.tipos).sort(([,a],[,b])=> b.ocorrencias - a.ocorrencias);
+      for(const [tipo,d] of entries){
+        const row=el('div','row');
+        const left=el('div');
+        const name=el('div','name'); name.textContent=tipo; left.appendChild(name);
+        const stats=el('div','stats');
+        stats.append(makePill('Ocorrências',d.ocorrencias),
+                     makePill('Maiores',d.detidosMaiores),
+                     makePill('Menores',d.menores));
+        row.append(left,stats);
+        list.appendChild(row);
+      }
+      const t=el('div','row');
+      const left=el('div');
+      const name=el('div','name'); name.textContent='📊 TOTAL DA CATEGORIA'; left.appendChild(name);
+      const stats=el('div','stats');
+      stats.append(makePill('Ocorrências',g.totalOcorrencias),
+                   makePill('Maiores',g.totalDetidosMaiores),
+                   makePill('Menores',g.totalMenores));
+      t.append(left,stats);
+      list.appendChild(t);
+    }
 
     function backToCategories(){ $('#types').classList.add('hidden'); $('#cats').classList.remove('hidden'); }
 
@@ -384,11 +429,12 @@
     // Carrega o CSV automaticamente ao iniciar
     window.addEventListener('load', fetchCSV);
 
-    // ===== Menu Interativo =====
-    const menuLinks = document.querySelectorAll('.menu-link');
+    // ===== Navegação por seções internas (SPA) =====
+    // Atenção: NÃO intercepta links com .external (ex.: Drogas -> drogas.html)
+    const menuLinks = document.querySelectorAll('.menu-link:not(.external)');
+
     const sections = {
       inicial: ['#tools', '#cards', '#cats', '#types', '#totals'],
-      drogas: ['#drogas-section'],
       regioes: ['#regioes-section'],
       horarios: ['#horarios-section'],
       equipes: ['#equipes-section']
@@ -401,20 +447,22 @@
         if (elem) elem.classList.add('hidden');
       });
       // Mostra a seção selecionada
-      sections[sectionId].forEach(sel => {
+      (sections[sectionId] || []).forEach(sel => {
         const elem = $(sel);
         if (elem) elem.classList.remove('hidden');
       });
       // Atualiza classe active no menu
-      menuLinks.forEach(link => link.classList.remove('active'));
-      document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+      document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
+      const active = document.querySelector(`.menu-link[data-section="${sectionId}"]`);
+      if (active) active.classList.add('active');
     }
 
+    // Intercepta só os links internos
     menuLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const sectionId = link.dataset.section;
-        showSection(sectionId);
+        if (sectionId) showSection(sectionId);
       });
     });
 
@@ -433,3 +481,4 @@
   </script>
 </body>
 </html>
+
