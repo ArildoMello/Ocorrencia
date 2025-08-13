@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drogas — Tipo x Quilogramas</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    /* ======= BASE / TEMA NEON AZUL ======= */
+    *{box-sizing:border-box}
+    :root{
+      --bg1:#07051a; --bg2:#0f0b2d; --bg3:#14123b;
+      --text:#eaf1ff; --muted:rgba(202,214,255,.78);
+      --grad-a:#00e6ff; --grad-b:#2f7bff; --grad-c:#7c4dff;
+      --brd: rgba(120,160,255,.22);
+      --glass: rgba(18,25,61,.55);
+      --shadow: 0 25px 50px rgba(0,0,0,.35);
+      --sidebar-w: 280px;
+      --sidebar-w-collapsed: 72px;
+    }
+    html,body{height:100%}
+    body{margin:0; font-family:'Inter','Segoe UI',system-ui,Arial,sans-serif; color:var(--text);
+      background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));}
+    body::before{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+      background:
+       radial-gradient(60rem 60rem at 20% 50%, rgba(0,230,255,.16) 0%, transparent 55%),
+       radial-gradient(42rem 42rem at 80% 20%, rgba(124,77,255,.14) 0%, transparent 60%),
+       radial-gradient(40rem 40rem at 40% 80%, rgba(47,123,255,.12) 0%, transparent 60%);
+      filter:saturate(1.1);
+    }
+    .hidden{display:none}
+
+    /* ======= LAYOUT COM MENU ANIMADO (ícone por padrão) ======= */
+    .app{display:grid; grid-template-columns: var(--sidebar-w) 1fr; min-height:100vh; transition:grid-template-columns .25s ease}
+    .app.collapsed{grid-template-columns: var(--sidebar-w-collapsed) 1fr}
+
+    /* Sidebar */
+    #sidebar{position:sticky; top:0; align-self:start; min-height:100vh; background:rgba(9,14,40,.88); border-right:1px solid var(--brd); backdrop-filter: blur(12px); box-shadow:var(--shadow);}
+    .sb-row{display:flex; align-items:center; gap:10px; padding:14px 12px}
+    .sb-head{border-bottom:1px solid var(--brd)}
+    .dot{width:10px; height:10px; border-radius:999px; background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); box-shadow:0 0 10px rgba(0,230,255,.6)}
+    #menuBtn{appearance:none; background:transparent; color:var(--text); border:1px solid var(--brd); border-radius:10px; padding:8px 10px; cursor:pointer}
+
+    /* Navegação */
+    .nav{display:flex; flex-direction:column; padding:8px}
+    .nav a{display:flex; align-items:center; gap:12px; padding:10px 12px; margin:4px 0; border-radius:12px; color:#cfe6ff; text-decoration:none; border:1px solid transparent; white-space:nowrap; overflow:hidden}
+    .nav a:hover{background:rgba(10,25,70,.45); border-color:var(--brd)}
+    .nav a.active{color:#fff; background:linear-gradient(135deg, rgba(0,230,255,.08), rgba(47,123,255,.08)); border-color:rgba(120,170,255,.35); box-shadow:0 0 12px rgba(0,230,255,.35)}
+    .nav .ico{width:28px; display:inline-grid; place-items:center; font-size:18px}
+    .nav .label{opacity:1; transition:opacity .2s ease, transform .2s ease}
+
+    /* Colapsado: mostra só ícones */
+    .app.collapsed .nav .label{opacity:0; transform:translateX(-6px); width:0; margin:0; padding:0}
+    .app.collapsed #menuBtn .label{display:none}
+
+    /* Conteúdo */
+    .content{padding:22px}
+    .container{max-width:1200px; margin:0 auto; background:linear-gradient(180deg, var(--glass), rgba(10,12,30,.45)); border:1px solid rgba(120,160,255,.18); border-radius:24px; padding:24px; box-shadow:var(--shadow)}
+    .header{text-align:center; margin-bottom:18px; position:relative}
+    .header::before{content:""; position:absolute; top:-10px; left:50%; transform:translateX(-50%); width:220px; height:4px; border-radius:2px; background:linear-gradient(90deg,var(--grad-a),var(--grad-b),var(--grad-c)); box-shadow:0 0 16px rgba(0,230,255,.45)}
+    h1{font-size:clamp(1.8rem,1.2rem + 2.2vw,3rem); font-weight:900; letter-spacing:.3px; margin:6px 0; background:linear-gradient(135deg,var(--grad-a),var(--grad-b),var(--grad-c)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent}
+
+    /* Cards */
+    .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:14px}
+    .card{background:linear-gradient(135deg, rgba(0,230,255,.9), rgba(47,123,255,.9)); color:#fff; padding:18px; border-radius:18px; text-align:center}
+    .card h3{font-size:2rem; margin:0 0 4px}
+
+    /* Painel e linhas (2 colunas: Tipo | Quilogramas) */
+    .panel{background:linear-gradient(180deg, rgba(14,18,48,.7), rgba(8,10,28,.6)); border:1px solid var(--brd); border-radius:18px; overflow:hidden}
+    .panel-hd{background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); padding:14px 16px; font-weight:900}
+    .row{display:grid; grid-template-columns:1fr auto; align-items:center; gap:16px; padding:16px; border-top:1px solid rgba(130,160,255,.16)}
+    .row:first-child{border-top:none}
+    .row:hover{background:rgba(10,25,70,.35)}
+    .pill{min-width:120px; text-align:center; padding:8px 12px; border-radius:10px; background:rgba(10,25,70,.55); border:1px solid rgba(120,170,255,.25)}
+
+    /* FAB + SCRIM (mobile) */
+    #fabMenu{position:fixed; bottom:18px; right:18px; z-index:6; appearance:none; background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); color:#031224; border:none; border-radius:14px; padding:12px 14px; box-shadow:var(--shadow); display:none}
+    .scrim{position:fixed; inset:0; background:rgba(0,0,0,.45); backdrop-filter:blur(2px); z-index:5; opacity:0; pointer-events:none; transition:opacity .2s ease}
+    .scrim.show{opacity:1; pointer-events:auto}
+
+    /* Tabelas responsivas (do seu snippet) */
+    .table-wrap{width:100%;overflow:auto}
+    table{width:100%;border-collapse:collapse;min-width:640px}
+    th,td{border-top:1px solid rgba(130,160,255,.16);padding:10px 12px;text-align:left}
+    thead th{background:rgba(0,230,255,.08)}
+
+    /* Responsivo */
+    @media (max-width:1024px){
+      #fabMenu{display:block}
+      /* No mobile o menu fica colapsado e flutuante por cima */
+      #sidebar{position:fixed; left:0; top:0; bottom:0; width:var(--sidebar-w); transform:translateX(-110%); transition:transform .25s ease}
+      #sidebar.open{transform:translateX(0)}
+      .app{grid-template-columns:1fr}
+    }
+    @media (max-width:720px){
+      .row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <!-- FAB do menu (apenas mobile) -->
+  <button id="fabMenu" aria-label="Abrir menu" title="Abrir menu">☰</button>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="app collapsed" id="app"><!-- colapsado por padrão no desktop -->
+    <!-- SIDEBAR -->
+    <aside id="sidebar" aria-label="Menu lateral">
+      <div class="sb-row sb-head">
+        <span class="dot" aria-hidden="true"></span>
+        <button id="menuBtn" aria-expanded="false" aria-controls="sidebar" title="Menu">☰ <span class="label">Menu</span></button>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="index.html" class="" ><span class="ico">🏠</span><span class="label">Página inicial</span></a>
+        <a href="drogas.html" class="active"><span class="ico">💊</span><span class="label">Drogas Apreendidas</span></a>
+        <a href="#equipe" data-target="equipe-section"><span class="ico">👥</span><span class="label">Equipe</span></a>
+        <a href="#regioes" data-target="regioes-section"><span class="ico">🌍</span><span class="label">Regiões</span></a>
+        <a href="#horarios" data-target="horarios-section"><span class="ico">⏰</span><span class="label">Horários</span></a>
+        <a href="#config" data-target="config-section"><span class="ico">⚙️</span><span class="label">Configurações</span></a>
+      </nav>
+    </aside>
+
+    <!-- CONTEÚDO -->
+    <main class="content">
+      <div class="container">
+        <div class="header">
+          <h1>Drogas — Tipo x Quilogramas</h1>
+        </div>
+
+        <div id="cards" class="cards hidden"></div>
+
+        <section id="panel" class="panel hidden" aria-live="polite">
+          <div class="panel-hd">💊 Drogas (Tipo | Quilogramas)</div>
+          <div id="list"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ====== Animações/Interações do MENU ======
+    const app = document.getElementById('app');
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const fabMenu = document.getElementById('fabMenu');
+    const scrim = document.getElementById('scrim');
+
+    function setExpanded(exp){
+      if(window.matchMedia('(max-width:1024px)').matches){
+        // mobile: desliza do lado
+        sidebar.classList.toggle('open', !!exp);
+        scrim.classList.toggle('show', !!exp);
+        menuBtn.setAttribute('aria-expanded', !!exp);
+      } else {
+        // desktop: colapsa/larga
+        app.classList.toggle('collapsed', !exp);
+        menuBtn.setAttribute('aria-expanded', !!exp);
+      }
+    }
+
+    // Estado inicial: desktop colapsado; mobile fechado
+    setExpanded(false);
+
+    menuBtn?.addEventListener('click', () => {
+      if(window.matchMedia('(max-width:1024px)').matches){
+        const isOpen = sidebar.classList.contains('open');
+        setExpanded(!isOpen);
+      } else {
+        const isCollapsed = app.classList.contains('collapsed');
+        setExpanded(isCollapsed);
+      }
+    });
+
+    fabMenu?.addEventListener('click', () => setExpanded(true));
+    scrim?.addEventListener('click', () => setExpanded(false));
+
+    // Fecha o drawer ao redimensionar para desktop
+    window.addEventListener('resize', ()=>{
+      if(!window.matchMedia('(max-width:1024px)').matches){
+        sidebar.classList.remove('open');
+        scrim.classList.remove('show');
+      }
+    });
+
+    // ====== Dados (CSV do Google Sheets) ======
+    const sheetId = '1RoDmP-_PT2x4m7e7cJrjFTut5HqN3JkJU-I7XdLwrVQ';
+    const url = `https://corsproxy.io/?${encodeURIComponent(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`)}`;
+
+    const $ = (sel) => document.querySelector(sel);
+    const el = (tag, cls) => { const x = document.createElement(tag); if (cls) x.className = cls; return x; };
+    const numberize = (v) => { if (v==null) return 0; const s=String(v).replace(/\./g,'').replace(/,/g,'.').replace(/[^0-9.-]/g,'').trim(); const n=s===''?0:Number(s); return Number.isFinite(n)?n:0; };
+
+    let data = {}, rawText = "";
+    function formatKg(v){ return Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    function createCard(val,label){ const c=el('div','card'); c.innerHTML=`<h3>${val}</h3><p>${label}</p>`; return c; }
+    function makePill(label,val){ const d=el('div','pill'); d.innerHTML=`${label}<br><b>${val}</b>`; return d; }
+
+    function render(){
+      const tipos = Object.keys(data);
+      const soma = tipos.reduce((s,k)=> s+data[k], 0);
+      const wrap=$('#cards');
+      wrap.innerHTML='';
+      wrap.append(
+        createCard(tipos.length,'Tipos de Drogas'),
+        createCard(formatKg(soma),'Soma total (kg)')
+      );
+      wrap.classList.remove('hidden');
+
+      const list=$('#list');
+      list.innerHTML='';
+      for(const [tipo,kg] of Object.entries(data).sort((a,b)=> b[1]-a[1])){
+        const row=el('div','row');
+        row.innerHTML=`<div>${tipo}</div>`;
+        row.append(makePill('Quilogramas', formatKg(kg)));
+        list.append(row);
+      }
+      $('#panel').classList.remove('hidden');
+    }
+
+    async function fetchCSV(){
+      const res = await fetch(url);
+      if(!res.ok){ console.error('Falha ao obter CSV'); return; }
+      const text = await res.text();
+      rawText = text;
+      const result = Papa.parse(rawText, { skipEmptyLines: 'greedy' }).data;
+      const hasHeader = result[0]?.some?.(c=> String(c).toLowerCase().includes('tipo'));
+      const rows = hasHeader ? result.slice(1) : result;
+      data = {};
+      for(const r of rows){
+        if(!r[0]) continue;
+        const tipo = String(r[0]).trim();
+        const kg = numberize(r[1]);
+        if(!data[tipo]) data[tipo]=0;
+        data[tipo]+=kg;
+      }
+      render();
+    }
+
+    window.addEventListener('load', fetchCSV);
+  </script>
+</body>
+</html>
