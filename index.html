@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel — Ocorrências, Drogas e Detidos</title>
+  <!-- Parser de CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
-    /* ======= THEME / LAYOUT / MENU (neon + menu animado) ======= */
+    /* ======= THEME (Neon Azul) ======= */
     *{box-sizing:border-box}
     :root{
       --bg1:#07051a; --bg2:#0f0b2d; --bg3:#14123b;
@@ -14,7 +15,7 @@
       --grad-a:#00e6ff; --grad-b:#2f7bff; --grad-c:#7c4dff;
       --brd: rgba(120,160,255,.22); --glow:0 0 14px rgba(0,230,255,.45);
       --glass: rgba(18,25,61,.55); --shadow: 0 25px 50px rgba(0,0,0,.35);
-      --sb-w:260px; --sb-wc:72px;
+      --sb-w:260px; --sb-wc:72px; --ease:cubic-bezier(.2,.8,.2,1);
     }
     html,body{height:100%}
     body{
@@ -31,29 +32,69 @@
     }
     .hidden{display:none}
 
+    /* ======= LAYOUT ======= */
     .app{min-height:100vh; display:flex;}
-    /* Sidebar */
+    /* Sidebar base */
     #sidebar{
       position:sticky; top:0; align-self:flex-start;
       width:var(--sb-w); height:100dvh;
       background:linear-gradient(180deg, var(--glass), rgba(10,12,30,.45));
       border-right:1px solid var(--brd); backdrop-filter: blur(14px);
-      padding:14px 10px; transition:width .25s ease; z-index:20;
+      padding:14px 10px; z-index:20;
+      transition:
+        width .28s var(--ease),
+        transform .25s var(--ease);
+      will-change: width, transform;
     }
     .sb-row{display:flex; align-items:center; gap:10px; padding:8px 10px}
     .sb-head{border-bottom:1px solid var(--brd)}
     .dot{width:10px; height:10px; border-radius:50%; background:linear-gradient(90deg,var(--grad-a),var(--grad-b)); box-shadow:var(--glow)}
     #menuBtn{background:transparent; border:1px solid rgba(120,160,255,.25); color:var(--text); border-radius:10px; padding:8px 10px; cursor:pointer}
+
     .nav{display:flex; flex-direction:column; gap:6px; margin-top:8px}
     .nav a{
+      position:relative; overflow:hidden; transform:translateZ(0);
       display:flex; align-items:center; gap:12px; padding:10px 12px;
       border-radius:12px; text-decoration:none; color:#eaf1ff;
       border:1px solid rgba(120,160,255,.15); background:rgba(16,22,60,.45);
+      transition: background .22s var(--ease), border-color .22s var(--ease), box-shadow .22s var(--ease);
     }
-    .nav a .ico{min-width:24px; text-align:center}
-    .nav a .label{white-space:nowrap}
-    .nav a:hover{background:rgba(10,25,70,.6)}
-    .nav a.active{background:linear-gradient(135deg, rgba(0,230,255,.25), rgba(47,123,255,.25)); border-color:rgba(130,180,255,.45); box-shadow:0 0 0 1px rgba(0,230,255,.12) inset}
+    .nav a .ico{min-width:24px; text-align:center; transition: transform .22s var(--ease), filter .22s var(--ease);}
+    .nav a:hover .ico{ transform:translateY(-1px); filter:drop-shadow(0 0 6px rgba(0,230,255,.5)); }
+    .nav a .label{white-space:nowrap; opacity:1; transform:translateX(0); transition: opacity .22s var(--ease), transform .22s var(--ease);}
+    .nav a.active{background:linear-gradient(135deg, rgba(0,230,255,.25), rgba(47,123,255,.25)); border-color:rgba(130,180,255,.45); box-shadow:0 0 18px rgba(0,230,255,.18);}
+
+    /* Menu colapsado (desktop) – só ícones */
+    .app.collapsed #sidebar{ width:var(--sb-wc); }
+    .app.collapsed .nav a .label{ opacity:0; transform:translateX(-6px); pointer-events:none; }
+
+    /* Efeito de abertura (pulso neon) */
+    @keyframes glowPulse{
+      0%,100%{ box-shadow:0 0 0 rgba(0,230,255,0); }
+      50%    { box-shadow:0 0 24px rgba(0,230,255,.35); }
+    }
+    .sidebar-opening #sidebar{ animation:glowPulse .6s ease 1; }
+
+    @keyframes labelSlideIn{
+      from{ opacity:0; transform:translateX(-8px); }
+      to  { opacity:1; transform:translateX(0); }
+    }
+    .sidebar-opening .nav a .label{ animation:labelSlideIn .25s var(--ease) both; }
+
+    /* Ripple no clique do item */
+    .nav a::after{
+      content:"";
+      position:absolute; inset:auto auto 0 0;
+      width:0; height:0; border-radius:50%;
+      background:radial-gradient(circle, rgba(0,230,255,.35), transparent 60%);
+      transform:translate(var(--rx,0), var(--ry,0)) scale(0);
+      opacity:0; pointer-events:none;
+    }
+    .nav a.rippling::after{
+      width:220px; height:220px; opacity:1;
+      transform:translate(var(--rx,0), var(--ry,0)) scale(1);
+      transition:transform .45s var(--ease), opacity .45s var(--ease);
+    }
 
     /* Conteúdo */
     .content{flex:1; padding:22px; min-width:0}
@@ -93,97 +134,6 @@
     .footer{margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
 
     /* Drawer mobile */
-/* ===== MENU ANIMADO (colapsado por padrão) ===== */
-:root{
-  --sb-w:260px;           /* aberto */
-  --sb-wc:72px;           /* colapsado (só ícones) */
-  --ease: cubic-bezier(.2,.8,.2,1);
-}
-
-#sidebar{
-  width:var(--sb-w);
-  transition:
-    width .28s var(--ease),
-    transform .25s var(--ease);
-  will-change: width, transform;
-}
-
-/* app inicia colapsado no desktop */
-.app.collapsed #sidebar{ width:var(--sb-wc); }
-
-/* rótulos: deslizam/indicam aparição */
-.nav a .label{
-  opacity:1;
-  transform:translateX(0);
-  transition:
-    opacity .22s var(--ease),
-    transform .22s var(--ease);
-}
-.app.collapsed .nav a .label{
-  opacity:0;
-  transform:translateX(-6px);
-  pointer-events:none;
-}
-
-/* hover/active com glow e leve “lift” do ícone */
-.nav a{
-  position:relative;
-  overflow:hidden;
-  transform:translateZ(0);
-  transition:
-    background .22s var(--ease),
-    border-color .22s var(--ease),
-    box-shadow .22s var(--ease);
-}
-.nav a .ico{
-  display:inline-grid; place-items:center; min-width:24px;
-  transition: transform .22s var(--ease), filter .22s var(--ease);
-}
-.nav a:hover .ico{ transform:translateY(-1px); filter:drop-shadow(0 0 6px rgba(0,230,255,.5)); }
-.nav a.active{
-  background:linear-gradient(135deg, rgba(0,230,255,.25), rgba(47,123,255,.25));
-  border-color:rgba(130,180,255,.45);
-  box-shadow:0 0 18px rgba(0,230,255,.18);
-}
-
-/* pulso neon sutil na borda do menu quando abre */
-@keyframes glowPulse{
-  0%,100%{ box-shadow:0 0 0 rgba(0,230,255,0); }
-  50%    { box-shadow:0 0 24px rgba(0,230,255,.35); }
-}
-.sidebar-opening #sidebar{ animation:glowPulse .6s ease 1; }
-
-/* micro-anim de entrada do rótulo na abertura */
-@keyframes labelSlideIn{
-  from{ opacity:0; transform:translateX(-8px); }
-  to  { opacity:1; transform:translateX(0); }
-}
-.sidebar-opening .nav a .label{ animation:labelSlideIn .25s var(--ease) both; }
-
-/* “ripple” no clique */
-.nav a::after{
-  content:"";
-  position:absolute; inset:auto auto 0 0;
-  width:0; height:0; border-radius:50%;
-  background:radial-gradient(circle, rgba(0,230,255,.35), transparent 60%);
-  transform:translate(var(--rx,0), var(--ry,0)) scale(0);
-  opacity:0; pointer-events:none;
-}
-.nav a.rippling::after{
-  width:220px; height:220px; opacity:1;
-  transform:translate(var(--rx,0), var(--ry,0)) scale(1);
-  transition:transform .45s var(--ease), opacity .45s var(--ease);
-}
-
-/* MOBILE (drawer) – já existia, só garantindo suavidade */
-@media (max-width:1024px){
-  #sidebar{
-    position:fixed; left:0; top:0; bottom:0;
-    transform:translateX(-110%);
-  }
-  .app.drawer-open #sidebar{ transform:translateX(0); }
-}
-
     #fabMenu{
       position:fixed; bottom:18px; right:18px; z-index:40; width:52px;height:52px; border-radius:50%;
       border:1px solid rgba(120,170,255,.35); background:linear-gradient(135deg, rgba(0,230,255,.9), rgba(47,123,255,.9));
@@ -198,7 +148,7 @@
     @media (max-width:1024px){
       #fabMenu{display:block}
       #sidebar{position:fixed; left:0; top:0; bottom:0; transform:translateX(-110%); }
-      .app.drawer-open #sidebar{ transform:translateX(0); transition:transform .25s ease; }
+      .app.drawer-open #sidebar{ transform:translateX(0); }
       .app.drawer-open .scrim{ display:block; }
     }
     @media (max-width:720px){
@@ -292,38 +242,87 @@
   </div>
 
   <script>
-    // ===== MENU / DRAWER =====
+    /* ===== MENU / DRAWER ANIMADO ===== */
     const app = document.getElementById('app');
     const menuBtn = document.getElementById('menuBtn');
     const fab = document.getElementById('fabMenu');
     const scrim = document.getElementById('scrim');
     const nav = document.getElementById('nav');
     const mm = window.matchMedia('(max-width:1024px)');
+
+    // Inicia colapsado no desktop
+    if (!mm.matches) app.classList.add('collapsed');
+
     function openDrawer(){ app.classList.add('drawer-open'); }
     function closeDrawer(){ app.classList.remove('drawer-open'); }
-    menuBtn?.addEventListener('click', ()=> mm.matches ? (app.classList.contains('drawer-open')?closeDrawer():openDrawer()) : null);
+
+    function expandSidebarDesktop(expand){
+      if (mm.matches) return;
+      if (expand){
+        app.classList.add('sidebar-opening');
+        app.classList.remove('collapsed');
+        setTimeout(()=> app.classList.remove('sidebar-opening'), 350);
+      } else {
+        app.classList.add('sidebar-opening');
+        app.classList.add('collapsed');
+        setTimeout(()=> app.classList.remove('sidebar-opening'), 350);
+      }
+    }
+
+    menuBtn?.addEventListener('click', ()=>{
+      if (mm.matches){
+        app.classList.contains('drawer-open') ? closeDrawer() : openDrawer();
+      } else {
+        const isCollapsed = app.classList.contains('collapsed');
+        expandSidebarDesktop(isCollapsed);
+      }
+    });
     fab?.addEventListener('click', openDrawer);
     scrim?.addEventListener('click', closeDrawer);
 
-    // Troca de seções SPA-like
+    mm.addEventListener('change', (ev)=>{
+      if (ev.matches){
+        app.classList.remove('collapsed'); // mobile não usa colapso
+        closeDrawer();
+      } else {
+        app.classList.remove('drawer-open');
+        app.classList.add('collapsed');    // volta colapsado no desktop
+      }
+    });
+
+    // Ripple no clique do item do menu
+    nav.addEventListener('click', (e)=>{
+      const a = e.target.closest('a'); if(!a) return;
+      const rect = a.getBoundingClientRect();
+      const rx = (e.clientX - rect.left) - 110;
+      const ry = (e.clientY - rect.top)  - 110;
+      a.style.setProperty('--rx', rx + 'px');
+      a.style.setProperty('--ry', ry + 'px');
+      a.classList.add('rippling');
+      setTimeout(()=> a.classList.remove('rippling'), 460);
+    });
+
+    /* ===== TROCA DE SEÇÕES (SPA-like) ===== */
     const loaded = { ocorr:false, drogas:false, detidos:false };
     nav.addEventListener('click', (e)=>{
       const a = e.target.closest('a'); if(!a) return;
       const targetId = a.getAttribute('data-target'); if(!targetId) return;
-      e.preventDefault();
 
+      e.preventDefault();
       document.querySelectorAll('main > section').forEach(s=> s.classList.add('hidden'));
       document.getElementById(targetId).classList.remove('hidden');
-      nav.querySelectorAll('a').forEach(x=> x.classList.remove('active')); a.classList.add('active');
-      if(mm.matches) closeDrawer();
 
-      // Carregamento on-demand
-      if(targetId==='drogas-section' && !loaded.drogas) fetchDrogas();
-      if(targetId==='detidos-section' && !loaded.detidos) fetchDetidos();
-      if(targetId==='ocorrencias-section' && !loaded.ocorr) fetchOcorrencias();
+      nav.querySelectorAll('a').forEach(x=> x.classList.remove('active'));
+      a.classList.add('active');
+
+      if (mm.matches) closeDrawer();
+
+      if(targetId==='drogas-section' && !loaded.drogas) fetchDrogas?.();
+      if(targetId==='detidos-section' && !loaded.detidos) fetchDetidos?.();
+      if(targetId==='ocorrencias-section' && !loaded.ocorr) fetchOcorrencias?.();
     });
 
-    // ===== UTILS =====
+    /* ===== UTILS ===== */
     const $ = (sel) => document.querySelector(sel);
     const el = (tag, cls) => { const x = document.createElement(tag); if (cls) x.className = cls; return x; };
     const numberize = (v) => { if (v==null) return 0; const s=String(v).replace(/\./g,'').replace(/,/g,'.').replace(/[^0-9.-]/g,'').trim(); const n=s===''?0:Number(s); return Number.isFinite(n)?n:0; };
@@ -331,11 +330,10 @@
     const createCard = (val,label) => { const c=el('div','card'); c.innerHTML=`<h3>${val}</h3><p>${label}</p>`; return c; }
     const makePill = (label,val) => { const d=el('div','pill'); d.innerHTML=`${label}<br><b>${val}</b>`; return d; }
 
-    // ===== OCORRÊNCIAS (5 colunas) =====
+    /* ===== OCORRÊNCIAS (5 colunas) ===== */
     const SHEET_OC = '1JB-orpGTvhL1iEGCgTtXpLl4awO7A0zcpFSMZSRE5xU';
     let dataOC=[], grouped={};
     function normalizeOC(rows){
-      // Detecta cabeçalho (tipo, categoria, ocorrências, maiores, menores)
       const header = rows[0].map(x=>String(x||'').toLowerCase());
       const hasHeader = ['tipo','categoria','ocorr','ocorrência','maiores','menores'].some(k => header.some(c=> c.includes(k)));
       if(hasHeader) rows = rows.slice(1);
@@ -429,7 +427,7 @@
       }catch(e){ console.error(e); alert('Erro ao carregar Ocorrências. Verifique se a planilha está pública.'); }
     }
 
-    // ===== DROGAS (2 colunas: tipo, kg) =====
+    /* ===== DROGAS (2 colunas: tipo, kg) ===== */
     const SHEET_DR = '1RoDmP-_PT2x4m7e7cJrjFTut5HqN3JkJU-I7XdLwrVQ';
     async function fetchDrogas(){
       try{
@@ -440,7 +438,10 @@
         const agg = {};
         for(const r of body){ const tipo=String(r[0]||'').trim(); if(!tipo) continue; const kg=numberize(r[1]); agg[tipo]=(agg[tipo]||0)+kg; }
         const tipos = Object.keys(agg); const soma = tipos.reduce((s,k)=> s+agg[k],0);
-        const cards = $('#dr-cards'); cards.innerHTML=''; cards.append(createCard(tipos.length,'Tipos de Drogas'), createCard(soma.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}),'Soma total (kg)')); cards.classList.remove('hidden');
+        const cards = $('#dr-cards'); cards.innerHTML=''; cards.append(
+          createCard(tipos.length,'Tipos de Drogas'),
+          createCard(soma.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}),'Soma total (kg)')
+        ); cards.classList.remove('hidden');
         const list=$('#dr-list'); list.innerHTML='';
         tipos.sort((a,b)=> agg[b]-agg[a]).forEach(t=>{
           const row=el('div','row'); row.innerHTML=`<div class="name">${t}</div>`;
@@ -451,7 +452,7 @@
       }catch(e){ console.error(e); alert('Erro ao carregar Drogas.'); }
     }
 
-    // ===== DETIDOS (2 colunas: tipo, quantidade) =====
+    /* ===== DETIDOS (2 colunas: tipo, quantidade) ===== */
     const SHEET_DE = '1y0lXqmjBjxJm-mb4Ym7zm94tf_KqL_ub534w9hxSF2w';
     async function fetchDetidos(){
       try{
@@ -462,7 +463,10 @@
         const agg = {};
         for(const r of body){ const tipo=String(r[0]||'').trim(); if(!tipo) continue; const qtd=numberize(r[1]); agg[tipo]=(agg[tipo]||0)+qtd; }
         const tipos = Object.keys(agg); const soma = tipos.reduce((s,k)=> s+agg[k],0);
-        const cards = $('#de-cards'); cards.innerHTML=''; cards.append(createCard(tipos.length,'Tipos de Detidos'), createCard(soma.toLocaleString('pt-BR'),'Total de Detidos')); cards.classList.remove('hidden');
+        const cards = $('#de-cards'); cards.innerHTML=''; cards.append(
+          createCard(tipos.length,'Tipos de Detidos'),
+          createCard(soma.toLocaleString('pt-BR'),'Total de Detidos')
+        ); cards.classList.remove('hidden');
         const list=$('#de-list'); list.innerHTML='';
         tipos.sort((a,b)=> agg[b]-agg[a]).forEach(t=>{
           const row=el('div','row'); row.innerHTML=`<div class="name">${t}</div>`;
@@ -473,11 +477,14 @@
       }catch(e){ console.error(e); alert('Erro ao carregar Detidos.'); }
     }
 
-    // ===== Inicialização =====
+    /* ===== Inicialização ===== */
     window.addEventListener('load', ()=>{
+      // Desktop: começa colapsado (já aplicado acima). Mobile: drawer fechado.
       // Deixa Ocorrências visível e carrega
       document.getElementById('ocorrencias-section').classList.remove('hidden');
       fetchOcorrencias();
+
+      // Clique SPA padrão: já está no addEventListener do nav (acima)
     });
   </script>
 </body>
