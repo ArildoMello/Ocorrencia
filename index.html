@@ -3,321 +3,280 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ocorrências Atendidas — Tema Cyberpunk (Neon Azul)</title>
-  <!-- Parser robusto para CSV -->
+  <title>Painel — Ocorrências, Drogas e Detidos</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
-    /* ===== TEMA CYBERPUNK (NEON AZUL) ===== */
-    * { margin:0; padding:0; box-sizing:border-box }
-    :root {
+    /* ======= THEME / LAYOUT / MENU (neon + menu animado) ======= */
+    *{box-sizing:border-box}
+    :root{
       --bg1:#07051a; --bg2:#0f0b2d; --bg3:#14123b;
-      --glass:rgba(6,12,40,.35); --glass-2:rgba(120,160,255,.18);
       --text:#eaf1ff; --muted:rgba(202,214,255,.78);
-      --grad-a:#00e6ff;  /* ciano neon */
-      --grad-b:#2f7bff;  /* azul elétrico */
-      --grad-c:#7c4dff;  /* violeta neon */
-      --glow: 0 0 12px rgba(0,230,255,.55), 0 0 28px rgba(47,123,255,.35);
-      --shadow:0 25px 50px rgba(0,0,0,.35);
+      --grad-a:#00e6ff; --grad-b:#2f7bff; --grad-c:#7c4dff;
+      --brd: rgba(120,160,255,.22); --glow:0 0 14px rgba(0,230,255,.45);
+      --glass: rgba(18,25,61,.55); --shadow: 0 25px 50px rgba(0,0,0,.35);
+      --sb-w:260px; --sb-wc:72px;
     }
-
-    body { font-family:'Inter','Segoe UI',system-ui,Arial,sans-serif; background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 50%,var(--bg3) 100%); min-height:100vh; padding:20px; position:relative; color:var(--text) }
-    body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:
-      radial-gradient(60rem 60rem at 20% 50%, rgba(0,230,255,.16) 0%, transparent 55%),
-      radial-gradient(42rem 42rem at 80% 20%, rgba(124,77,255,.14) 0%, transparent 60%),
-      radial-gradient(40rem 40rem at 40% 80%, rgba(47,123,255,.12) 0%, transparent 60%);
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--text); font-family:'Inter','Segoe UI',system-ui,Arial,sans-serif;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));
+    }
+    body::before{
+      content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+      background:
+        radial-gradient(60rem 60rem at 20% 50%, rgba(0,230,255,.16) 0%, transparent 55%),
+        radial-gradient(42rem 42rem at 80% 20%, rgba(124,77,255,.14) 0%, transparent 60%),
+        radial-gradient(40rem 40rem at 40% 80%, rgba(47,123,255,.12) 0%, transparent 60%);
       filter:saturate(1.1);
     }
+    .hidden{display:none}
 
-    .container { max-width:1200px; margin:0 auto; backdrop-filter: blur(20px); background:linear-gradient(180deg, rgba(18,25,61,.55), rgba(10,12,30,.45)); border:1px solid var(--glass-2); border-radius:24px; padding:32px; box-shadow:var(--shadow) }
-    .header { text-align:center; margin-bottom:24px; position:relative }
-    .header::before { content:""; position:absolute; top:-12px; left:50%; translate:-50% 0; width:180px; height:4px; border-radius:2px; background:linear-gradient(90deg,var(--grad-a),var(--grad-b),var(--grad-c)); box-shadow:var(--glow) }
-    h1 { font-size:clamp(1.8rem,1.2rem + 2.2vw,3rem); font-weight:900; margin:8px 0 4px; letter-spacing:.4px; background:linear-gradient(135deg,var(--grad-a) 0%,var(--grad-b) 50%,var(--grad-c) 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; text-shadow:0 2px 18px rgba(0,230,255,.22)}
-    .subtitle { color:var(--muted); font-weight:700; text-shadow:0 0 10px rgba(47,123,255,.25) }
-
-    /* ===== Loading ===== */
-    .upload { margin:16px 0 22px; border:2px dashed rgba(130,160,255,.35); border-radius:18px; padding:24px; text-align:center; background:rgba(10,15,45,.45); transition:.25s }
-    .upload h3 { font-size:1.1rem; margin-bottom:6px }
-    .upload p { color:var(--muted); font-size:.95rem; margin-bottom:12px }
-
-    /* ===== Toolbar (centralizada) ===== */
-    .toolbar { display:flex; gap:12px; flex-wrap:wrap; margin:12px 0 18px; justify-content:center; width:100%; }
-    .tool { background:rgba(16,22,60,.6); border:1px solid rgba(120,160,255,.22); padding:10px 12px; border-radius:12px; display:flex; align-items:center; gap:8px; box-shadow:0 6px 18px rgba(0,0,0,.2) }
-    .tool input[type=search] { background:transparent; border:none; outline:none; color:#e9f3ff; width:100%; }
-    .toolbar .tool:first-child { flex: 1 1 clamp(280px, 60%, 720px); max-width: 720px; }
-    .toolbar .tool:last-child { flex: 0 0 auto; padding:10px 14px; border-radius:999px; background:rgba(10,25,70,.55); border:1px solid rgba(120,170,255,.25); box-shadow:var(--glow) }
-    .toolbar .tool:last-child small { font-weight:800; letter-spacing:.2px; color:var(--muted) }
-    .ghost { opacity:.75 }
-
-    /* ===== Cards ===== */
-    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:14px }
-    .card { background:linear-gradient(135deg, rgba(0,230,255,.9), rgba(47,123,255,.9)); color:#fff; padding:20px; border-radius:18px; text-align:center; border:1px solid rgba(130,180,255,.3); box-shadow:var(--glow) }
-    .card h3 { font-size:2rem; margin-bottom:4px; text-shadow:0 1px 12px rgba(0,230,255,.35) }
-
-    /* ===== Painéis ===== */
-    .panel { background:linear-gradient(180deg, rgba(14,18,48,.7), rgba(8,10,28,.6)); border:1px solid rgba(110,160,255,.22); border-radius:18px; overflow:hidden }
-    .panel-hd { background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); padding:14px 16px; font-weight:900; display:flex; align-items:center; gap:8px; box-shadow:var(--glow) }
-
-    /* ===== Linhas ===== */
-    .row { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px; border-top:1px solid rgba(130,160,255,.16) }
-    .row:first-child { border-top:none }
-    .row:hover { background:rgba(10,25,70,.35) }
-    .name { font-weight:900 }
-    .muted { color:var(--muted); font-weight:700; font-size:.95rem }
-
-    .stats { display:flex; gap:12px; flex-wrap:wrap }
-    .pill { min-width:86px; text-align:center; padding:8px 10px; border-radius:10px; background:rgba(10,25,70,.55); border:1px solid rgba(120,170,255,.25); box-shadow:0 0 0 1px rgba(0,230,255,.05) inset }
-    .pill b { font-size:1.2rem; color:var(--grad-a); text-shadow:0 0 10px rgba(0,230,255,.35) }
-
-    .hidden { display:none }
-    .footer { margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end }
-
-    /* ===== Menu Lateral (Sidebar) ===== */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 60px;
-      height: 100vh;
-      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
-      padding: 20px 10px;
-      box-shadow: 10px 0 20px rgba(0,0,0,.3);
-      z-index: 10;
-      overflow-y: auto;
-      border-right: 1px solid var(--glass-2);
-      transition: width .3s ease;
+    .app{min-height:100vh; display:flex;}
+    /* Sidebar */
+    #sidebar{
+      position:sticky; top:0; align-self:flex-start;
+      width:var(--sb-w); height:100dvh;
+      background:linear-gradient(180deg, var(--glass), rgba(10,12,30,.45));
+      border-right:1px solid var(--brd); backdrop-filter: blur(14px);
+      padding:14px 10px; transition:width .25s ease; z-index:20;
     }
-    .sidebar.expanded { width: 250px; }
-    .logo { text-align: center; margin-bottom: 30px; }
-    .logo h2 {
-      font-size: 1.5rem; font-weight: 900;
-      background: linear-gradient(135deg, var(--grad-a) 0%, var(--grad-b) 50%, var(--grad-c) 100%);
-      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-      text-shadow: 0 2px 18px rgba(0,230,255,.22); opacity: 0; transition: opacity .3s ease;
+    .sb-row{display:flex; align-items:center; gap:10px; padding:8px 10px}
+    .sb-head{border-bottom:1px solid var(--brd)}
+    .dot{width:10px; height:10px; border-radius:50%; background:linear-gradient(90deg,var(--grad-a),var(--grad-b)); box-shadow:var(--glow)}
+    #menuBtn{background:transparent; border:1px solid rgba(120,160,255,.25); color:var(--text); border-radius:10px; padding:8px 10px; cursor:pointer}
+    .nav{display:flex; flex-direction:column; gap:6px; margin-top:8px}
+    .nav a{
+      display:flex; align-items:center; gap:12px; padding:10px 12px;
+      border-radius:12px; text-decoration:none; color:#eaf1ff;
+      border:1px solid rgba(120,160,255,.15); background:rgba(16,22,60,.45);
     }
-    .sidebar.expanded .logo h2 { opacity: 1; }
-    .menu-list { list-style: none; }
-    .menu-item { margin-bottom: 10px; }
-    .menu-link {
-      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
-      border-radius: 12px; color: var(--text); text-decoration: none; font-weight: 700; transition: .25s;
-      background: rgba(16,22,60,.6); border: 1px solid rgba(120,160,255,.22); box-shadow: 0 4px 12px rgba(0,0,0,.2);
-    }
-    .menu-link:hover, .menu-link.active { background: linear-gradient(135deg, var(--grad-a), var(--grad-b)); box-shadow: var(--glow); color: #fff; }
-    .menu-link:hover { translate: 0 -2px; }
-    .menu-link span { opacity: 0; width: 0; overflow: hidden; transition: opacity .3s ease, width .3s ease; }
-    .sidebar.expanded .menu-link span { opacity: 1; width: auto; }
-    .main-content { margin-left: 60px; padding: 20px; transition: margin-left .3s ease; }
-    .sidebar.expanded ~ .main-content { margin-left: 250px; }
+    .nav a .ico{min-width:24px; text-align:center}
+    .nav a .label{white-space:nowrap}
+    .nav a:hover{background:rgba(10,25,70,.6)}
+    .nav a.active{background:linear-gradient(135deg, rgba(0,230,255,.25), rgba(47,123,255,.25)); border-color:rgba(130,180,255,.45); box-shadow:0 0 0 1px rgba(0,230,255,.12) inset}
 
-    .menu-toggle {
-      display: block; position: fixed; top: 20px; left: 20px; z-index: 11;
-      background: var(--grad-b); border: none; color: #fff; padding: 10px; border-radius: 8px; cursor: pointer; box-shadow: var(--glow);
+    /* Conteúdo */
+    .content{flex:1; padding:22px; min-width:0}
+    .container{
+      max-width:1200px; margin:0 auto; background:linear-gradient(180deg,var(--glass), rgba(10,12,30,.45));
+      border:1px solid rgba(120,160,255,.18); border-radius:24px; padding:24px; box-shadow:var(--shadow)
+    }
+    .header{text-align:center; margin-bottom:18px; position:relative}
+    .header::before{
+      content:""; position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+      width:260px; height:4px; border-radius:2px; background:linear-gradient(90deg,var(--grad-a),var(--grad-b),var(--grad-c)); box-shadow:var(--glow)
+    }
+    h1{
+      font-size:clamp(1.8rem,1.2rem + 2.2vw,3rem); font-weight:900; letter-spacing:.3px; margin:6px 0;
+      background:linear-gradient(135deg,var(--grad-a),var(--grad-b),var(--grad-c));
+      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent
+    }
+    .subtitle{color:var(--muted); font-weight:700}
+
+    /* Cards / Painéis / Linhas */
+    .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:14px}
+    .card{background:linear-gradient(135deg, rgba(0,230,255,.9), rgba(47,123,255,.9)); color:#fff; padding:18px; border-radius:18px; text-align:center}
+    .card h3{font-size:2rem; margin:0 0 4px}
+    .panel{background:linear-gradient(180deg, rgba(14,18,48,.7), rgba(8,10,28,.6)); border:1px solid var(--brd); border-radius:18px; overflow:hidden; margin-top:12px}
+    .panel-hd{background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); padding:14px 16px; font-weight:900}
+    .row{display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px; border-top:1px solid rgba(130,160,255,.16)}
+    .row:first-child{border-top:none}
+    .row:hover{background:rgba(10,25,70,.35)}
+    .stats{display:flex; gap:12px; flex-wrap:wrap}
+    .pill{min-width:90px; text-align:center; padding:8px 10px; border-radius:10px; background:rgba(10,25,70,.55); border:1px solid rgba(120,170,255,.25)}
+    .pill b{font-size:1.1rem; color:#00e6ff; text-shadow:0 0 10px rgba(0,230,255,.35)}
+    .name{font-weight:900}
+    .muted{color:var(--muted); font-weight:700; font-size:.95rem}
+    .toolbar{display:flex; gap:12px; flex-wrap:wrap; margin:12px 0 18px; justify-content:center}
+    .tool{background:rgba(16,22,60,.6); border:1px solid rgba(120,160,255,.22); padding:10px 12px; border-radius:12px; display:flex; align-items:center; gap:8px}
+    .tool input[type=search]{background:transparent; border:none; outline:none; color:#e9f3ff; width:100%}
+    .footer{margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+
+    /* Drawer mobile */
+    #fabMenu{
+      position:fixed; bottom:18px; right:18px; z-index:40; width:52px;height:52px; border-radius:50%;
+      border:1px solid rgba(120,170,255,.35); background:linear-gradient(135deg, rgba(0,230,255,.9), rgba(47,123,255,.9));
+      color:#fff; font-weight:900; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.35); display:none
+    }
+    .scrim{
+      position:fixed; inset:0; background:rgba(0,0,0,.45); backdrop-filter:saturate(1.1) blur(2px);
+      z-index:30; display:none
     }
 
-    @media (max-width: 1024px) {
-      .sidebar.expanded { width: 200px; }
-      .sidebar.expanded ~ .main-content { margin-left: 200px; }
+    /* Responsivo */
+    @media (max-width:1024px){
+      #fabMenu{display:block}
+      #sidebar{position:fixed; left:0; top:0; bottom:0; transform:translateX(-110%); }
+      .app.drawer-open #sidebar{ transform:translateX(0); transition:transform .25s ease; }
+      .app.drawer-open .scrim{ display:block; }
     }
-    @media (max-width: 768px) {
-      .sidebar { width: 60px; left: -60px; transition: left .3s ease; }
-      .sidebar.expanded { left: 0; width: 100%; }
-      .main-content { margin-left: 0; }
-      .sidebar.expanded ~ .main-content { margin-left: 0; }
+    @media (max-width:720px){
+      .row{flex-direction:column; align-items:flex-start}
+      .stats{width:100%; justify-content:space-between}
     }
   </style>
 </head>
-<body>
-  <!-- Menu Lateral -->
-  <nav class="sidebar" aria-label="Menu lateral">
-    <div class="logo"><h2>Ocorrências</h2></div>
-    <ul class="menu-list">
-      <li class="menu-item">
-        <a href="#inicial" class="menu-link active" data-section="inicial">🏠 <span>Inicial</span></a>
-      </li>
+<body data-page="home">
+  <!-- FAB do menu (apenas mobile) -->
+  <button id="fabMenu" aria-label="Abrir menu" title="Abrir menu">☰</button>
+  <div class="scrim" id="scrim"></div>
 
-      <!-- Link EXTERNO: abre drogas.html (não é interceptado pelo JS) -->
-      <li class="menu-item">
-        <a href="/Ocorrencia/drogas.html" class="menu-link external">💊 <span>Drogas Apreendidas</span></a>
-      </li>
-      <li class="menu-item">
-        <a href="/Ocorrencia/detidos.html" class="menu-link" data-section="equipes">👥 <span>Equipes</span></a>
-      </li>
-      <li class="menu-item">
-        <a href="#regioes" class="menu-link" data-section="regioes">🌍 <span>Regiões</span></a>
-      </li>
-      <li class="menu-item">
-        <a href="#horarios" class="menu-link" data-section="horarios">⏰ <span>Horários</span></a>
-      </li>
-      
-    </ul>
-  </nav>
-
-  <!-- Botão para toggle menu -->
-  <button class="menu-toggle" id="menuToggle" aria-label="Abrir/fechar menu">☰</button>
-
-  <!-- Conteúdo Principal -->
-  <main class="main-content" id="conteudo">
-    <div class="container">
-      <div class="header">
-        <h1>Ocorrências Atendidas em <span id="yearText">2025</span></h1>
-        <div class="subtitle">Sistema de análise e monitoramento de ocorrências</div>
+  <div class="app" id="app">
+    <!-- SIDEBAR -->
+    <aside id="sidebar" aria-label="Menu lateral">
+      <div class="sb-row sb-head">
+        <span class="dot" aria-hidden="true"></span>
+        <button id="menuBtn" aria-expanded="false" aria-controls="sidebar" title="Menu">
+          ☰ <span class="label">Menu</span>
+        </button>
       </div>
+      <nav class="nav" id="nav">
+        <a href="#" data-page="home" data-target="ocorrencias-section" class="active"><span class="ico">📋</span><span class="label">Ocorrências</span></a>
+        <a href="#" data-page="drogas" data-target="drogas-section"><span class="ico">💊</span><span class="label">Drogas</span></a>
+        <a href="#" data-page="detidos" data-target="detidos-section"><span class="ico">👮</span><span class="label">Detidos</span></a>
+      </nav>
+    </aside>
 
-      <div id="drop" class="upload" aria-label="Área de carregamento de dados">
-        <h3>⏳ Carregando dados do CSV...</h3>
-        <p>Os dados estão sendo obtidos diretamente do Google Sheets.</p>
-        <div id="loading" class="ghost" style="margin-top:10px; font-weight:800">⏳ Processando dados…</div>
-        <div id="parseWarn" class="ghost hidden" style="margin-top:8px"></div>
-      </div>
+    <!-- CONTEÚDO -->
+    <main class="content" id="content" tabindex="-1">
+      <!-- ===== Ocorrências (PRINCIPAL) ===== -->
+      <section id="ocorrencias-section">
+        <div class="container">
+          <div class="header">
+            <h1>Ocorrências Atendidas</h1>
+            <div class="subtitle">Sistema de análise e monitoramento de ocorrências</div>
+          </div>
 
-      <div id="tools" class="toolbar hidden" role="region" aria-label="Ferramentas">
-        <div class="tool">🔎 <input id="q" type="search" placeholder="Buscar por categoria ou tipo…" aria-label="Buscar" /></div>
-        <div class="tool"><small id="metaInfo">0 linhas</small></div>
-      </div>
+          <div id="oc-tools" class="toolbar hidden">
+            <div class="tool">🔎 <input id="q" type="search" placeholder="Buscar por categoria ou tipo…" aria-label="Buscar" /></div>
+            <div class="tool"><small id="metaInfo">0 linhas</small></div>
+          </div>
 
-      <div id="cards" class="cards hidden"></div>
+          <div id="oc-cards" class="cards hidden"></div>
 
-      <section id="cats" class="panel hidden" aria-live="polite">
-        <div class="panel-hd">📋 Categorias</div>
-        <div id="catList"></div>
+          <section id="cats" class="panel hidden" aria-live="polite">
+            <div class="panel-hd">📋 Categorias</div>
+            <div id="catList"></div>
+          </section>
+
+          <section id="types" class="panel hidden">
+            <div class="panel-hd"><button id="back" type="button">← Voltar</button> <span id="catTitle" style="font-weight:900;margin-left:8px"></span></div>
+            <div id="typeList"></div>
+          </section>
+
+          <div class="footer hidden" id="totals"></div>
+        </div>
       </section>
 
-      <section id="types" class="panel hidden">
-        <div class="panel-hd"><button id="back" class="btn" type="button">← Voltar</button> <span id="catTitle" style="font-weight:900"></span></div>
-        <div id="typeList"></div>
+      <!-- ===== Drogas ===== -->
+      <section id="drogas-section" class="hidden">
+        <div class="container">
+          <div class="header">
+            <h1>Drogas — Tipo x Quilogramas</h1>
+            <div class="subtitle">Resumo agregado por tipo (kg)</div>
+          </div>
+          <div id="dr-cards" class="cards hidden"></div>
+          <section id="dr-panel" class="panel hidden">
+            <div class="panel-hd">💊 Drogas (Tipo | Quilogramas)</div>
+            <div id="dr-list"></div>
+          </section>
+        </div>
       </section>
 
-      <div class="footer hidden" id="totals"></div>
-
-      <!-- Placeholders para seções internas -->
-      <section id="regioes-section" class="panel hidden">
-        <div class="panel-hd">🌍 Regiões</div>
-        <div>Conteúdo a ser implementado...</div>
+      <!-- ===== Detidos ===== -->
+      <section id="detidos-section" class="hidden">
+        <div class="container">
+          <div class="header">
+            <h1>Detidos — Tipo x Quantidade</h1>
+            <div class="subtitle">Resumo agregado por tipo</div>
+          </div>
+          <div id="de-cards" class="cards hidden"></div>
+          <section id="de-panel" class="panel hidden">
+            <div class="panel-hd">👮 Detidos (Tipo | Quantidade)</div>
+            <div id="de-list"></div>
+          </section>
+        </div>
       </section>
-
-      <section id="horarios-section" class="panel hidden">
-        <div class="panel-hd">⏰ Horários</div>
-        <div>Conteúdo a ser implementado...</div>
-      </section>
-
-      <section id="equipes-section" class="panel hidden">
-        <div class="panel-hd">👥 Equipes</div>
-        <div>Conteúdo a ser implementado...</div>
-      </section>
-    </div>
-  </main>
+    </main>
+  </div>
 
   <script>
-    // ===== Estado =====
-    let rawText = "";
-    let rows = [];
-    let data = [];
-    let grouped = {};
+    // ===== MENU / DRAWER =====
+    const app = document.getElementById('app');
+    const menuBtn = document.getElementById('menuBtn');
+    const fab = document.getElementById('fabMenu');
+    const scrim = document.getElementById('scrim');
+    const nav = document.getElementById('nav');
+    const mm = window.matchMedia('(max-width:1024px)');
+    function openDrawer(){ app.classList.add('drawer-open'); }
+    function closeDrawer(){ app.classList.remove('drawer-open'); }
+    menuBtn?.addEventListener('click', ()=> mm.matches ? (app.classList.contains('drawer-open')?closeDrawer():openDrawer()) : null);
+    fab?.addEventListener('click', openDrawer);
+    scrim?.addEventListener('click', closeDrawer);
 
-    // ===== Utils =====
+    // Troca de seções SPA-like
+    const loaded = { ocorr:false, drogas:false, detidos:false };
+    nav.addEventListener('click', (e)=>{
+      const a = e.target.closest('a'); if(!a) return;
+      const targetId = a.getAttribute('data-target'); if(!targetId) return;
+      e.preventDefault();
+
+      document.querySelectorAll('main > section').forEach(s=> s.classList.add('hidden'));
+      document.getElementById(targetId).classList.remove('hidden');
+      nav.querySelectorAll('a').forEach(x=> x.classList.remove('active')); a.classList.add('active');
+      if(mm.matches) closeDrawer();
+
+      // Carregamento on-demand
+      if(targetId==='drogas-section' && !loaded.drogas) fetchDrogas();
+      if(targetId==='detidos-section' && !loaded.detidos) fetchDetidos();
+      if(targetId==='ocorrencias-section' && !loaded.ocorr) fetchOcorrencias();
+    });
+
+    // ===== UTILS =====
     const $ = (sel) => document.querySelector(sel);
     const el = (tag, cls) => { const x = document.createElement(tag); if (cls) x.className = cls; return x; };
     const numberize = (v) => { if (v==null) return 0; const s=String(v).replace(/\./g,'').replace(/,/g,'.').replace(/[^0-9.-]/g,'').trim(); const n=s===''?0:Number(s); return Number.isFinite(n)?n:0; };
-    const cleanText = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
-    const escapeHTML = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+    const csvUrl = (sheetId) => `https://corsproxy.io/?${encodeURIComponent(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`)}`;
+    const createCard = (val,label) => { const c=el('div','card'); c.innerHTML=`<h3>${val}</h3><p>${label}</p>`; return c; }
+    const makePill = (label,val) => { const d=el('div','pill'); d.innerHTML=`${label}<br><b>${val}</b>`; return d; }
 
-    function looksMisencoded(str){ const bad=(str.match(/Ã|�/g)||[]).length; return bad>Math.max(3,str.length*0.01); }
-
-    async function readTextSmart(text, response) {
-      rawText = text;
-      if(looksMisencoded(rawText)){
-        try {
-          const buf = await response.arrayBuffer();
-          rawText = new TextDecoder('iso-8859-1').decode(new Uint8Array(buf));
-          $('#parseWarn').textContent='⚠️ Acentuação ISO-8859-1 detectada e corrigida.';
-          $('#parseWarn').classList.remove('hidden');
-        } catch(e) {
-          $('#parseWarn').textContent='⚠️ Possível problema de acentuação. Salve o CSV em UTF-8.';
-          $('#parseWarn').classList.remove('hidden');
-        }
-      } else {
-        $('#parseWarn').classList.add('hidden');
-      }
-    }
-
-    // ===== Parser com PapaParse (robusto) =====
-    function parseWithPapa(text){
-      const result = Papa.parse(text, {
-        delimiter: '',            // autodetect
-        skipEmptyLines: 'greedy', // remove linhas vazias
-        dynamicTyping: false
-      });
-      return result.data.filter(r=> Array.isArray(r) && r.some(c=> String(c).trim()!=='') );
-    }
-
-    function detectHeader(r){
-      if(!r.length) return false;
-      const first=r[0].map(x=>String(x||'').toLowerCase());
-      const keys=['tipo','categoria','ocorr','ocorrência','ocorrencias','maiores','menores'];
-      return keys.some(k=> first.some(c=>c.includes(k)));
-    }
-
-    function normalizeData(r){
-      const hasHeader=detectHeader(r);
-      if(hasHeader) r=r.slice(1);
-      data = r.map(cols=>{
+    // ===== OCORRÊNCIAS (5 colunas) =====
+    const SHEET_OC = '1JB-orpGTvhL1iEGCgTtXpLl4awO7A0zcpFSMZSRE5xU';
+    let dataOC=[], grouped={};
+    function normalizeOC(rows){
+      // Detecta cabeçalho (tipo, categoria, ocorrências, maiores, menores)
+      const header = rows[0].map(x=>String(x||'').toLowerCase());
+      const hasHeader = ['tipo','categoria','ocorr','ocorrência','maiores','menores'].some(k => header.some(c=> c.includes(k)));
+      if(hasHeader) rows = rows.slice(1);
+      dataOC = rows.map(cols=>{
         const c=[...cols]; while(c.length<5) c.push('');
-        const [tipo,categoria,ocorr,mai,men]=c.slice(0,5);
-        return {
-          tipo:cleanText(tipo),
-          categoria:cleanText(categoria),
-          ocorrencias:numberize(ocorr),
-          detidosMaiores:numberize(mai),
-          menores:numberize(men)
-        };
+        const [tipo,categoria,oc,mai,men]=c.slice(0,5);
+        return { tipo:String(tipo||'').trim(), categoria:String(categoria||'').trim(), ocorrencias:numberize(oc), detidosMaiores:numberize(mai), menores:numberize(men) }
       }).filter(x=>x.tipo && x.categoria);
     }
-
-    function aggregate(){
+    function aggregateOC(){
       grouped={};
-      for(const row of data){
-        const cat=row.categoria;
-        if(!grouped[cat]) grouped[cat]={tipos:{}, quantidadeTipos:0, totalOcorrencias:0, totalDetidosMaiores:0, totalMenores:0};
-        const g=grouped[cat];
-        if(!g.tipos[row.tipo]){ g.tipos[row.tipo]={ocorrencias:0,detidosMaiores:0,menores:0}; g.quantidadeTipos++; }
-        g.tipos[row.tipo].ocorrencias+=row.ocorrencias;
-        g.tipos[row.tipo].detidosMaiores+=row.detidosMaiores;
-        g.tipos[row.tipo].menores+=row.menores;
-        g.totalOcorrencias+=row.ocorrencias;
-        g.totalDetidosMaiores+=row.detidosMaiores;
-        g.totalMenores+=row.menores;
+      for(const r of dataOC){
+        const g = grouped[r.categoria] || (grouped[r.categoria]={tipos:{}, quantidadeTipos:0, totalOcorrencias:0, totalDetidosMaiores:0, totalMenores:0});
+        if(!g.tipos[r.tipo]){ g.tipos[r.tipo]={ocorrencias:0,detidosMaiores:0,menores:0}; g.quantidadeTipos++; }
+        g.tipos[r.tipo].ocorrencias+=r.ocorrencias;
+        g.tipos[r.tipo].detidosMaiores+=r.detidosMaiores;
+        g.tipos[r.tipo].menores+=r.menores;
+        g.totalOcorrencias+=r.ocorrencias;
+        g.totalDetidosMaiores+=r.detidosMaiores;
+        g.totalMenores+=r.menores;
       }
     }
-
-    // ===== Render =====
-    function renderSummary(){
+    function renderOC(){
       const cats=Object.keys(grouped);
-      const totals=cats.reduce((a,k)=>{
-        const g=grouped[k]; a.oc+=g.totalOcorrencias; a.ma+=g.totalDetidosMaiores; a.me+=g.totalMenores; return a;
-      },{oc:0,ma:0,me:0});
-
-      const wrap=$('#cards'); wrap.innerHTML='';
-      wrap.append(createCard(cats.length,'Categorias'),
-                  createCard(totals.oc,'Total Ocorrências'),
-                  createCard(totals.ma,'Detidos Maiores'),
-                  createCard(totals.me,'Menores'));
-
-      $('#totals').innerHTML='';
-      const f=$('#totals');
-      f.append(makePill('Ocorrências',totals.oc),
-               makePill('Maiores',totals.ma),
-               makePill('Menores',totals.me));
-
-      $('#metaInfo').textContent = `${data.length} linhas | ${cats.length} categorias`;
-      wrap.classList.remove('hidden');
-      $('#tools').classList.remove('hidden');
-      $('#cats').classList.remove('hidden');
-      $('#totals').classList.remove('hidden');
+      const totals=cats.reduce((a,k)=>{const g=grouped[k]; a.oc+=g.totalOcorrencias; a.ma+=g.totalDetidosMaiores; a.me+=g.totalMenores; return a;},{oc:0,ma:0,me:0});
+      const wrap=$('#oc-cards'); wrap.innerHTML='';
+      wrap.append(createCard(cats.length,'Categorias'), createCard(totals.oc,'Total Ocorrências'), createCard(totals.ma,'Detidos Maiores'), createCard(totals.me,'Menores'));
+      wrap.classList.remove('hidden'); $('#oc-tools').classList.remove('hidden'); $('#cats').classList.remove('hidden'); $('#totals').classList.remove('hidden');
+      $('#metaInfo').textContent = `${dataOC.length} linhas | ${cats.length} categorias`;
+      renderCategories('');
     }
-
-    function createCard(val,label){ const c=el('div','card'); const h=el('h3'); h.textContent=val; c.appendChild(h); const p=el('p'); p.textContent=label; c.appendChild(p); return c; }
-    function makePill(label,val){ const d=el('div','pill'); d.innerHTML=`${escapeHTML(label)}<br><b>${val}</b>`; return d; }
-
+    function makePillOC(label,val){ return makePill(label,val); }
     function renderCategories(filter=""){
       const list=$('#catList'); list.innerHTML='';
       const q=(filter||'').toLowerCase().trim();
@@ -332,153 +291,103 @@
 
       for(const [cat,g] of entries){
         const row=el('div','row'); row.role='button';
-        const left=el('div');
-        const name=el('div','name'); name.textContent=cat; left.appendChild(name);
+        const left=el('div'); const name=el('div','name'); name.textContent=cat; left.appendChild(name);
         const sub=el('div','muted'); sub.textContent=`${g.quantidadeTipos} tipos`; left.appendChild(sub);
         const stats=el('div','stats');
-        stats.append(makePill('Ocorrências',g.totalOcorrencias),
-                     makePill('Maiores',g.totalDetidosMaiores),
-                     makePill('Menores',g.totalMenores));
-        row.append(left,stats);
-        row.addEventListener('click',()=>showTypes(cat));
-        list.appendChild(row);
+        stats.append(makePillOC('Ocorrências',g.totalOcorrencias), makePillOC('Maiores',g.totalDetidosMaiores), makePillOC('Menores',g.totalMenores));
+        row.append(left,stats); row.addEventListener('click',()=>showTypes(cat)); list.appendChild(row);
       }
-
       if(q && entries.length){
-        const totals = entries.reduce((acc,[,g])=>{
-          acc.oc+=g.totalOcorrencias; acc.ma+=g.totalDetidosMaiores; acc.me+=g.totalMenores; return acc;
-        },{oc:0,ma:0,me:0});
-        const t=el('div','row');
-        const left=el('div');
-        const name=el('div','name'); name.textContent='📊 TOTAL FILTRADO'; left.appendChild(name);
+        const totals = entries.reduce((acc,[,g])=>{ acc.oc+=g.totalOcorrencias; acc.ma+=g.totalDetidosMaiores; acc.me+=g.totalMenores; return acc; },{oc:0,ma:0,me:0});
+        const t=el('div','row'); const left=el('div'); const name=el('div','name'); name.textContent='📊 TOTAL FILTRADO'; left.appendChild(name);
         const sub=el('div','muted'); sub.textContent='Resumo das categorias filtradas'; left.appendChild(sub);
         const stats=el('div','stats');
-        stats.append(makePill('Ocorrências',totals.oc),
-                     makePill('Maiores',totals.ma),
-                     makePill('Menores',totals.me));
-        t.append(left,stats);
-        list.appendChild(t);
+        stats.append(makePillOC('Ocorrências',totals.oc), makePillOC('Maiores',totals.ma), makePillOC('Menores',totals.me));
+        t.append(left,stats); list.appendChild(t);
       }
     }
-
     function showTypes(cat){
       const g=grouped[cat]; if(!g) return;
-      $('#types').classList.remove('hidden');
-      $('#cats').classList.add('hidden');
+      $('#types').classList.remove('hidden'); $('#cats').classList.add('hidden');
       $('#catTitle').textContent=`Tipos da Categoria: ${cat}`;
       const list=$('#typeList'); list.innerHTML='';
       const entries=Object.entries(g.tipos).sort(([,a],[,b])=> b.ocorrencias - a.ocorrencias);
       for(const [tipo,d] of entries){
-        const row=el('div','row');
-        const left=el('div');
-        const name=el('div','name'); name.textContent=tipo; left.appendChild(name);
+        const row=el('div','row'); const left=el('div'); const name=el('div','name'); name.textContent=tipo; left.appendChild(name);
         const stats=el('div','stats');
-        stats.append(makePill('Ocorrências',d.ocorrencias),
-                     makePill('Maiores',d.detidosMaiores),
-                     makePill('Menores',d.menores));
-        row.append(left,stats);
-        list.appendChild(row);
+        stats.append(makePillOC('Ocorrências',d.ocorrencias), makePillOC('Maiores',d.detidosMaiores), makePillOC('Menores',d.menores));
+        row.append(left,stats); list.appendChild(row);
       }
-      const t=el('div','row');
-      const left=el('div');
-      const name=el('div','name'); name.textContent='📊 TOTAL DA CATEGORIA'; left.appendChild(name);
-      const stats=el('div','stats');
-      stats.append(makePill('Ocorrências',g.totalOcorrencias),
-                   makePill('Maiores',g.totalDetidosMaiores),
-                   makePill('Menores',g.totalMenores));
-      t.append(left,stats);
-      list.appendChild(t);
+      const t=el('div','row'); const left=el('div'); const name=el('div','name'); name.textContent='📊 TOTAL DA CATEGORIA'; left.appendChild(name);
+      const stats=el('div','stats'); stats.append(makePillOC('Ocorrências',g.totalOcorrencias), makePillOC('Maiores',g.totalDetidosMaiores), makePillOC('Menores',g.totalMenores));
+      t.append(left,stats); list.appendChild(t);
     }
-
     function backToCategories(){ $('#types').classList.add('hidden'); $('#cats').classList.remove('hidden'); }
-
-    // ===== Fetch CSV from Google Sheets =====
-    async function fetchCSV() {
-      $('#loading').classList.remove('hidden');
-      $('#parseWarn').classList.add('hidden');
-      try {
-        const sheetId = '1JB-orpGTvhL1iEGCgTtXpLl4awO7A0zcpFSMZSRE5xU';
-        const csvUrl = `https://corsproxy.io/?${encodeURIComponent(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`)}`;
-        const response = await fetch(csvUrl);
-        if (!response.ok) throw new Error('Falha ao obter o CSV do Google Sheets.');
-        const text = await response.text();
-        await readTextSmart(text, response);
-        rows = parseWithPapa(rawText);
-        normalizeData(rows);
-        if (!data.length) {
-          alert('Não foram encontrados dados válidos no CSV. Verifique o formato (5 colunas) e se a planilha está pública.');
-          return;
-        }
-        aggregate();
-        renderSummary();
-        renderCategories('');
-        $('#drop').classList.add('hidden');
-      } catch (err) {
-        console.error(err);
-        $('#parseWarn').textContent = '⚠️ Erro ao carregar o CSV do Google Sheets. Verifique se a planilha está pública ou tente novamente.';
-        $('#parseWarn').classList.remove('hidden');
-      } finally {
-        $('#loading').classList.add('hidden');
-      }
-    }
-
-    // ===== Eventos =====
     $('#back').addEventListener('click', backToCategories);
     $('#q').addEventListener('input', e => renderCategories(e.target.value));
 
-    // Carrega o CSV automaticamente ao iniciar
-    window.addEventListener('load', fetchCSV);
-
-    // ===== Navegação por seções internas (SPA) =====
-    // Atenção: NÃO intercepta links com .external (ex.: Drogas -> drogas.html)
-    const menuLinks = document.querySelectorAll('.menu-link:not(.external)');
-
-    const sections = {
-      inicial: ['#tools', '#cards', '#cats', '#types', '#totals'],
-      regioes: ['#regioes-section'],
-      horarios: ['#horarios-section'],
-      equipes: ['#equipes-section']
-    };
-
-    function showSection(sectionId) {
-      // Esconde todas as seções
-      Object.values(sections).flat().forEach(sel => {
-        const elem = $(sel);
-        if (elem) elem.classList.add('hidden');
-      });
-      // Mostra a seção selecionada
-      (sections[sectionId] || []).forEach(sel => {
-        const elem = $(sel);
-        if (elem) elem.classList.remove('hidden');
-      });
-      // Atualiza classe active no menu
-      document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
-      const active = document.querySelector(`.menu-link[data-section="${sectionId}"]`);
-      if (active) active.classList.add('active');
+    async function fetchOcorrencias(){
+      try{
+        const response = await fetch(csvUrl(SHEET_OC));
+        if(!response.ok) throw new Error('Falha ao obter o CSV de Ocorrências.');
+        const text = await response.text();
+        const rows = Papa.parse(text, { delimiter:'', skipEmptyLines:'greedy' }).data
+                      .filter(r=> Array.isArray(r) && r.some(c=> String(c).trim()!=='') );
+        normalizeOC(rows); if(!dataOC.length){ alert('CSV de Ocorrências sem dados válidos.'); return; }
+        aggregateOC(); renderOC(); loaded.ocorr = true;
+      }catch(e){ console.error(e); alert('Erro ao carregar Ocorrências. Verifique se a planilha está pública.'); }
     }
 
-    // Intercepta só os links internos
-    menuLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const sectionId = link.dataset.section;
-        if (sectionId) showSection(sectionId);
-      });
-    });
+    // ===== DROGAS (2 colunas: tipo, kg) =====
+    const SHEET_DR = '1RoDmP-_PT2x4m7e7cJrjFTut5HqN3JkJU-I7XdLwrVQ';
+    async function fetchDrogas(){
+      try{
+        const res = await fetch(csvUrl(SHEET_DR)); if(!res.ok) throw new Error('Falha ao obter CSV Drogas');
+        const text = await res.text(); const rows = Papa.parse(text, { skipEmptyLines:'greedy' }).data;
+        const hasHeader = rows[0]?.some?.(c=> String(c).toLowerCase().includes('tipo') || String(c).toLowerCase().includes('droga'));
+        const body = hasHeader ? rows.slice(1) : rows;
+        const agg = {};
+        for(const r of body){ const tipo=String(r[0]||'').trim(); if(!tipo) continue; const kg=numberize(r[1]); agg[tipo]=(agg[tipo]||0)+kg; }
+        const tipos = Object.keys(agg); const soma = tipos.reduce((s,k)=> s+agg[k],0);
+        const cards = $('#dr-cards'); cards.innerHTML=''; cards.append(createCard(tipos.length,'Tipos de Drogas'), createCard(soma.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}),'Soma total (kg)')); cards.classList.remove('hidden');
+        const list=$('#dr-list'); list.innerHTML='';
+        tipos.sort((a,b)=> agg[b]-agg[a]).forEach(t=>{
+          const row=el('div','row'); row.innerHTML=`<div class="name">${t}</div>`;
+          row.append(makePill('Quilogramas', agg[t].toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})));
+          list.append(row);
+        });
+        $('#dr-panel').classList.remove('hidden'); loaded.drogas = true;
+      }catch(e){ console.error(e); alert('Erro ao carregar Drogas.'); }
+    }
 
-    // Toggle menu
-    const menuToggle = $('#menuToggle');
-    const sidebar = $('.sidebar');
-    menuToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('expanded');
-      if (window.innerWidth <= 768) {
-        sidebar.classList.toggle('open');
-      }
-    });
+    // ===== DETIDOS (2 colunas: tipo, quantidade) =====
+    const SHEET_DE = '1y0lXqmjBjxJm-mb4Ym7zm94tf_KqL_ub534w9hxSF2w';
+    async function fetchDetidos(){
+      try{
+        const res = await fetch(csvUrl(SHEET_DE)); if(!res.ok) throw new Error('Falha ao obter CSV Detidos');
+        const text = await res.text(); const rows = Papa.parse(text, { skipEmptyLines:'greedy' }).data;
+        const hasHeader = rows[0]?.some?.(c=> String(c).toLowerCase().includes('tipo'));
+        const body = hasHeader ? rows.slice(1) : rows;
+        const agg = {};
+        for(const r of body){ const tipo=String(r[0]||'').trim(); if(!tipo) continue; const qtd=numberize(r[1]); agg[tipo]=(agg[tipo]||0)+qtd; }
+        const tipos = Object.keys(agg); const soma = tipos.reduce((s,k)=> s+agg[k],0);
+        const cards = $('#de-cards'); cards.innerHTML=''; cards.append(createCard(tipos.length,'Tipos de Detidos'), createCard(soma.toLocaleString('pt-BR'),'Total de Detidos')); cards.classList.remove('hidden');
+        const list=$('#de-list'); list.innerHTML='';
+        tipos.sort((a,b)=> agg[b]-agg[a]).forEach(t=>{
+          const row=el('div','row'); row.innerHTML=`<div class="name">${t}</div>`;
+          row.append(makePill('Quantidade', agg[t].toLocaleString('pt-BR')));
+          list.append(row);
+        });
+        $('#de-panel').classList.remove('hidden'); loaded.detidos = true;
+      }catch(e){ console.error(e); alert('Erro ao carregar Detidos.'); }
+    }
 
-    // Inicialmente mostra a seção inicial
-    showSection('inicial');
+    // ===== Inicialização =====
+    window.addEventListener('load', ()=>{
+      // Deixa Ocorrências visível e carrega
+      document.getElementById('ocorrencias-section').classList.remove('hidden');
+      fetchOcorrencias();
+    });
   </script>
 </body>
 </html>
-
