@@ -93,6 +93,97 @@
     .footer{margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
 
     /* Drawer mobile */
+/* ===== MENU ANIMADO (colapsado por padrão) ===== */
+:root{
+  --sb-w:260px;           /* aberto */
+  --sb-wc:72px;           /* colapsado (só ícones) */
+  --ease: cubic-bezier(.2,.8,.2,1);
+}
+
+#sidebar{
+  width:var(--sb-w);
+  transition:
+    width .28s var(--ease),
+    transform .25s var(--ease);
+  will-change: width, transform;
+}
+
+/* app inicia colapsado no desktop */
+.app.collapsed #sidebar{ width:var(--sb-wc); }
+
+/* rótulos: deslizam/indicam aparição */
+.nav a .label{
+  opacity:1;
+  transform:translateX(0);
+  transition:
+    opacity .22s var(--ease),
+    transform .22s var(--ease);
+}
+.app.collapsed .nav a .label{
+  opacity:0;
+  transform:translateX(-6px);
+  pointer-events:none;
+}
+
+/* hover/active com glow e leve “lift” do ícone */
+.nav a{
+  position:relative;
+  overflow:hidden;
+  transform:translateZ(0);
+  transition:
+    background .22s var(--ease),
+    border-color .22s var(--ease),
+    box-shadow .22s var(--ease);
+}
+.nav a .ico{
+  display:inline-grid; place-items:center; min-width:24px;
+  transition: transform .22s var(--ease), filter .22s var(--ease);
+}
+.nav a:hover .ico{ transform:translateY(-1px); filter:drop-shadow(0 0 6px rgba(0,230,255,.5)); }
+.nav a.active{
+  background:linear-gradient(135deg, rgba(0,230,255,.25), rgba(47,123,255,.25));
+  border-color:rgba(130,180,255,.45);
+  box-shadow:0 0 18px rgba(0,230,255,.18);
+}
+
+/* pulso neon sutil na borda do menu quando abre */
+@keyframes glowPulse{
+  0%,100%{ box-shadow:0 0 0 rgba(0,230,255,0); }
+  50%    { box-shadow:0 0 24px rgba(0,230,255,.35); }
+}
+.sidebar-opening #sidebar{ animation:glowPulse .6s ease 1; }
+
+/* micro-anim de entrada do rótulo na abertura */
+@keyframes labelSlideIn{
+  from{ opacity:0; transform:translateX(-8px); }
+  to  { opacity:1; transform:translateX(0); }
+}
+.sidebar-opening .nav a .label{ animation:labelSlideIn .25s var(--ease) both; }
+
+/* “ripple” no clique */
+.nav a::after{
+  content:"";
+  position:absolute; inset:auto auto 0 0;
+  width:0; height:0; border-radius:50%;
+  background:radial-gradient(circle, rgba(0,230,255,.35), transparent 60%);
+  transform:translate(var(--rx,0), var(--ry,0)) scale(0);
+  opacity:0; pointer-events:none;
+}
+.nav a.rippling::after{
+  width:220px; height:220px; opacity:1;
+  transform:translate(var(--rx,0), var(--ry,0)) scale(1);
+  transition:transform .45s var(--ease), opacity .45s var(--ease);
+}
+
+/* MOBILE (drawer) – já existia, só garantindo suavidade */
+@media (max-width:1024px){
+  #sidebar{
+    position:fixed; left:0; top:0; bottom:0;
+    transform:translateX(-110%);
+  }
+  .app.drawer-open #sidebar{ transform:translateX(0); }
+}
+
     #fabMenu{
       position:fixed; bottom:18px; right:18px; z-index:40; width:52px;height:52px; border-radius:50%;
       border:1px solid rgba(120,170,255,.35); background:linear-gradient(135deg, rgba(0,230,255,.9), rgba(47,123,255,.9));
