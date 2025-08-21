@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel — Ocorrências, Drogas e Detidos</title>
+  <title>2025 — Ocorrências, Drogas e Detidos</title>
   <!-- Parser de CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
@@ -184,8 +184,8 @@
       <section id="ocorrencias-section">
         <div class="container">
           <div class="header">
-            <h1>Ocorrências Atendidas</h1>
-            <div class="subtitle">Sistema de análise e monitoramento de ocorrências</div>
+            <h1>Ocorrências Atendidas em 2025</h1>
+            <div class="subtitle">Guarda Municipal de Londrina - Monitoramento de ocorrências</div>
           </div>
 
           <div id="oc-tools" class="toolbar hidden">
@@ -213,8 +213,8 @@
       <section id="drogas-section" class="hidden">
         <div class="container">
           <div class="header">
-            <h1>Drogas — Tipo x Quilogramas</h1>
-            <div class="subtitle">Resumo agregado por tipo (kg)</div>
+            <h1>Apreensões de Drogas — 2025</h1>
+            <div class="subtitle">Guarda Municipal de Londrina - soma por em (kg)</div>
           </div>
           <div id="dr-cards" class="cards hidden"></div>
           <section id="dr-panel" class="panel hidden">
@@ -228,12 +228,12 @@
       <section id="detidos-section" class="hidden">
         <div class="container">
           <div class="header">
-            <h1>Detidos — Tipo x Quantidade</h1>
-            <div class="subtitle">Resumo agregado por tipo</div>
+            <h1>Detidos/Apreendidos — Por grupamentos - 2025</h1>
+            <div class="subtitle">Contagem de pessoas detidas/apreendidas </div>
           </div>
           <div id="de-cards" class="cards hidden"></div>
           <section id="de-panel" class="panel hidden">
-            <div class="panel-hd">👮 Detidos (Tipo | Quantidade)</div>
+            <div class="panel-hd">👮 Detidos (Grupamento | Quantidade)</div>
             <div id="de-list"></div>
           </section>
         </div>
@@ -464,7 +464,7 @@
         for(const r of body){ const tipo=String(r[0]||'').trim(); if(!tipo) continue; const qtd=numberize(r[1]); agg[tipo]=(agg[tipo]||0)+qtd; }
         const tipos = Object.keys(agg); const soma = tipos.reduce((s,k)=> s+agg[k],0);
         const cards = $('#de-cards'); cards.innerHTML=''; cards.append(
-          createCard(tipos.length,'Tipos de Detidos'),
+          createCard(tipos.length,'Grupamentos'),
           createCard(soma.toLocaleString('pt-BR'),'Total de Detidos')
         ); cards.classList.remove('hidden');
         const list=$('#de-list'); list.innerHTML='';
