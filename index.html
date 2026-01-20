@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- <link rel="icon" type="image/x-icon" href="https://arildomello.github.io/propriospublicos/assets/img/Ico.ico" />
+  <link rel="icon" type="image/x-icon" href="https://arildomello.github.io/propriospublicos/assets/img/Ico.ico" />
   <title>2025 — Ocorrências, Drogas e Detidos</title>
   <!-- Parser de CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -33,7 +32,6 @@
       filter:saturate(1.1);
     }
     .hidden{display:none}
-
     /* ======= LAYOUT ======= */
     .app{min-height:100vh; display:flex;}
     /* Sidebar base */
@@ -52,7 +50,6 @@
     .sb-head{border-bottom:1px solid var(--brd)}
     .dot{width:10px; height:10px; border-radius:50%; background:linear-gradient(90deg,var(--grad-a),var(--grad-b)); box-shadow:var(--glow)}
     #menuBtn{background:transparent; border:1px solid rgba(120,160,255,.25); color:var(--text); border-radius:10px; padding:8px 10px; cursor:pointer}
-
     .nav{display:flex; flex-direction:column; gap:6px; margin-top:8px}
     .nav a{
       position:relative; overflow:hidden; transform:translateZ(0);
@@ -65,28 +62,23 @@
     .nav a:hover .ico{ transform:translateY(-1px); filter:drop-shadow(0 0 6px rgba(0,230,255,.5)); }
     .nav a .label{white-space:nowrap; opacity:1; transform:translateX(0); transition: opacity .22s var(--ease), transform .22s var(--ease);}
     .nav a.active{background:linear-gradient(135deg, rgba(0,230,255,.25), rgba(47,123,255,.25)); border-color:rgba(130,180,255,.45); box-shadow:0 0 18px rgba(0,230,255,.18);}
-
     /* Menu colapsado (desktop) – só ícones */
     .app.collapsed #sidebar{ width:var(--sb-wc); }
     .app.collapsed .nav a .label{ opacity:0; transform:translateX(-6px); pointer-events:none; }
-
     /* Efeito de abertura (pulso neon) */
     @keyframes glowPulse{
       0%,100%{ box-shadow:0 0 0 rgba(0,230,255,0); }
-      50%    { box-shadow:0 0 24px rgba(0,230,255,.35); }
+      50% { box-shadow:0 0 24px rgba(0,230,255,.35); }
     }
     .sidebar-opening #sidebar{ animation:glowPulse .6s ease 1; }
-
     @keyframes labelSlideIn{
       from{ opacity:0; transform:translateX(-8px); }
-      to  { opacity:1; transform:translateX(0); }
+      to { opacity:1; transform:translateX(0); }
     }
     .sidebar-opening .nav a .label{ animation:labelSlideIn .25s var(--ease) both; }
-
     /* Ripple no clique do item */
     .nav a::after{
-      content:"";
-      position:absolute; inset:auto auto 0 0;
+      content:""; position:absolute; inset:auto auto 0 0;
       width:0; height:0; border-radius:50%;
       background:radial-gradient(circle, rgba(0,230,255,.35), transparent 60%);
       transform:translate(var(--rx,0), var(--ry,0)) scale(0);
@@ -97,7 +89,6 @@
       transform:translate(var(--rx,0), var(--ry,0)) scale(1);
       transition:transform .45s var(--ease), opacity .45s var(--ease);
     }
-
     /* Conteúdo */
     .content{flex:1; padding:22px; min-width:0}
     .container{
@@ -115,7 +106,6 @@
       -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent
     }
     .subtitle{color:var(--muted); font-weight:700}
-
     /* Cards / Painéis / Linhas */
     .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:14px}
     .card{background:linear-gradient(135deg, rgba(0,230,255,.9), rgba(47,123,255,.9)); color:#fff; padding:18px; border-radius:18px; text-align:center}
@@ -134,7 +124,6 @@
     .tool{background:rgba(16,22,60,.6); border:1px solid rgba(120,160,255,.22); padding:10px 12px; border-radius:12px; display:flex; align-items:center; gap:8px}
     .tool input[type=search]{background:transparent; border:none; outline:none; color:#e9f3ff; width:100%}
     .footer{margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
-
     /* Drawer mobile */
     #fabMenu{
       position:fixed; bottom:18px; right:18px; z-index:40; width:52px;height:52px; border-radius:50%;
@@ -145,7 +134,6 @@
       position:fixed; inset:0; background:rgba(0,0,0,.45); backdrop-filter:saturate(1.1) blur(2px);
       z-index:30; display:none
     }
-
     /* Responsivo */
     @media (max-width:1024px){
       #fabMenu{display:block}
@@ -163,7 +151,6 @@
   <!-- FAB do menu (apenas mobile) -->
   <button id="fabMenu" aria-label="Abrir menu" title="Abrir menu">☰</button>
   <div class="scrim" id="scrim"></div>
-
   <div class="app" id="app">
     <!-- SIDEBAR -->
     <aside id="sidebar" aria-label="Menu lateral">
@@ -179,7 +166,6 @@
         <a href="#" data-page="detidos" data-target="detidos-section"><span class="ico">👮</span><span class="label">Detidos</span></a>
       </nav>
     </aside>
-
     <!-- CONTEÚDO -->
     <main class="content" id="content" tabindex="-1">
       <!-- ===== Ocorrências (PRINCIPAL) ===== -->
@@ -189,28 +175,22 @@
             <h1>Atendimentos em 2025</h1>
             <div class="subtitle">Resumo de atendimentos em Próprios Públicos por Secretarias, ocorrências e detidos</div>
           </div>
-
           <div id="oc-tools" class="toolbar hidden">
             <div class="tool">🔎 <input id="q" type="search" placeholder="Buscar por categoria ou tipo…" aria-label="Buscar" /></div>
             <div class="tool"><small id="metaInfo">0 linhas</small></div>
           </div>
-
           <div id="oc-cards" class="cards hidden"></div>
-
           <section id="cats" class="panel hidden" aria-live="polite">
             <div class="panel-hd">📋 Categorias</div>
             <div id="catList"></div>
           </section>
-
           <section id="types" class="panel hidden">
             <div class="panel-hd"><button id="back" type="button">← Voltar</button> <span id="catTitle" style="font-weight:900;margin-left:8px"></span></div>
             <div id="typeList"></div>
           </section>
-
           <div class="footer hidden" id="totals"></div>
         </div>
       </section>
-
       <!-- ===== Drogas ===== -->
       <section id="drogas-section" class="hidden">
         <div class="container">
@@ -225,7 +205,6 @@
           </section>
         </div>
       </section>
-
       <!-- ===== Detidos ===== -->
       <section id="detidos-section" class="hidden">
         <div class="container">
@@ -251,13 +230,10 @@
     const scrim = document.getElementById('scrim');
     const nav = document.getElementById('nav');
     const mm = window.matchMedia('(max-width:1024px)');
-
     // Inicia colapsado no desktop
     if (!mm.matches) app.classList.add('collapsed');
-
     function openDrawer(){ app.classList.add('drawer-open'); }
     function closeDrawer(){ app.classList.remove('drawer-open'); }
-
     function expandSidebarDesktop(expand){
       if (mm.matches) return;
       if (expand){
@@ -270,7 +246,6 @@
         setTimeout(()=> app.classList.remove('sidebar-opening'), 350);
       }
     }
-
     menuBtn?.addEventListener('click', ()=>{
       if (mm.matches){
         app.classList.contains('drawer-open') ? closeDrawer() : openDrawer();
@@ -281,23 +256,21 @@
     });
     fab?.addEventListener('click', openDrawer);
     scrim?.addEventListener('click', closeDrawer);
-
     mm.addEventListener('change', (ev)=>{
       if (ev.matches){
         app.classList.remove('collapsed'); // mobile não usa colapso
         closeDrawer();
       } else {
         app.classList.remove('drawer-open');
-        app.classList.add('collapsed');    // volta colapsado no desktop
+        app.classList.add('collapsed'); // volta colapsado no desktop
       }
     });
-
     // Ripple no clique do item do menu
     nav.addEventListener('click', (e)=>{
       const a = e.target.closest('a'); if(!a) return;
       const rect = a.getBoundingClientRect();
       const rx = (e.clientX - rect.left) - 110;
-      const ry = (e.clientY - rect.top)  - 110;
+      const ry = (e.clientY - rect.top) - 110;
       a.style.setProperty('--rx', rx + 'px');
       a.style.setProperty('--ry', ry + 'px');
       a.classList.add('rippling');
@@ -309,16 +282,12 @@
     nav.addEventListener('click', (e)=>{
       const a = e.target.closest('a'); if(!a) return;
       const targetId = a.getAttribute('data-target'); if(!targetId) return;
-
       e.preventDefault();
       document.querySelectorAll('main > section').forEach(s=> s.classList.add('hidden'));
       document.getElementById(targetId).classList.remove('hidden');
-
       nav.querySelectorAll('a').forEach(x=> x.classList.remove('active'));
       a.classList.add('active');
-
       if (mm.matches) closeDrawer();
-
       if(targetId==='drogas-section' && !loaded.drogas) fetchDrogas?.();
       if(targetId==='detidos-section' && !loaded.detidos) fetchDetidos?.();
       if(targetId==='ocorrencias-section' && !loaded.ocorr) fetchOcorrencias?.();
@@ -328,7 +297,14 @@
     const $ = (sel) => document.querySelector(sel);
     const el = (tag, cls) => { const x = document.createElement(tag); if (cls) x.className = cls; return x; };
     const numberize = (v) => { if (v==null) return 0; const s=String(v).replace(/\./g,'').replace(/,/g,'.').replace(/[^0-9.-]/g,'').trim(); const n=s===''?0:Number(s); return Number.isFinite(n)?n:0; };
-    const csvUrl = (sheetId) => `https://corsproxy.io/?${encodeURIComponent(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`)}`;
+
+    // Função atualizada com cache-buster
+    const csvUrl = (sheetId) => {
+      const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+      const ts = Date.now();
+      return `https://corsproxy.io/?${encodeURIComponent(base + '&t=' + ts)}`;
+    };
+
     const createCard = (val,label) => { const c=el('div','card'); c.innerHTML=`<h3>${val}</h3><p>${label}</p>`; return c; }
     const makePill = (label,val) => { const d=el('div','pill'); d.innerHTML=`${label}<br><b>${val}</b>`; return d; }
 
@@ -379,7 +355,6 @@
           return matchCat || matchTipo;
         })
         .sort(([,a],[,b])=> b.totalOcorrencias - a.totalOcorrencias);
-
       for(const [cat,g] of entries){
         const row=el('div','row'); row.role='button';
         const left=el('div'); const name=el('div','name'); name.textContent=cat; left.appendChild(name);
@@ -419,22 +394,44 @@
 
     async function fetchOcorrencias(){
       try{
-        const response = await fetch(csvUrl(SHEET_OC));
+        console.log("Carregando Ocorrências com cache-buster...");
+        const response = await fetch(csvUrl(SHEET_OC), {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
         if(!response.ok) throw new Error('Falha ao obter o CSV de Ocorrências.');
         const text = await response.text();
         const rows = Papa.parse(text, { delimiter:'', skipEmptyLines:'greedy' }).data
                       .filter(r=> Array.isArray(r) && r.some(c=> String(c).trim()!=='') );
-        normalizeOC(rows); if(!dataOC.length){ alert('CSV de Ocorrências sem dados válidos.'); return; }
+        normalizeOC(rows); 
+        if(!dataOC.length){ alert('CSV de Ocorrências sem dados válidos.'); return; }
         aggregateOC(); renderOC(); loaded.ocorr = true;
-      }catch(e){ console.error(e); alert('Erro ao carregar Ocorrências. Verifique se a planilha está pública.'); }
+      }catch(e){ 
+        console.error(e); 
+        alert('Erro ao carregar Ocorrências. Verifique se a planilha está pública e compartilhada como "Qualquer pessoa com o link".'); 
+      }
     }
 
     /* ===== DROGAS (2 colunas: tipo, kg) ===== */
     const SHEET_DR = '1RoDmP-_PT2x4m7e7cJrjFTut5HqN3JkJU-I7XdLwrVQ';
     async function fetchDrogas(){
       try{
-        const res = await fetch(csvUrl(SHEET_DR)); if(!res.ok) throw new Error('Falha ao obter CSV Drogas');
-        const text = await res.text(); const rows = Papa.parse(text, { skipEmptyLines:'greedy' }).data;
+        console.log("Carregando Drogas com cache-buster...");
+        const res = await fetch(csvUrl(SHEET_DR), {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        if(!res.ok) throw new Error('Falha ao obter CSV Drogas');
+        const text = await res.text(); 
+        const rows = Papa.parse(text, { skipEmptyLines:'greedy' }).data;
         const hasHeader = rows[0]?.some?.(c=> String(c).toLowerCase().includes('tipo') || String(c).toLowerCase().includes('droga'));
         const body = hasHeader ? rows.slice(1) : rows;
         const agg = {};
@@ -458,8 +455,18 @@
     const SHEET_DE = '1y0lXqmjBjxJm-mb4Ym7zm94tf_KqL_ub534w9hxSF2w';
     async function fetchDetidos(){
       try{
-        const res = await fetch(csvUrl(SHEET_DE)); if(!res.ok) throw new Error('Falha ao obter CSV Detidos');
-        const text = await res.text(); const rows = Papa.parse(text, { skipEmptyLines:'greedy' }).data;
+        console.log("Carregando Detidos com cache-buster...");
+        const res = await fetch(csvUrl(SHEET_DE), {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        if(!res.ok) throw new Error('Falha ao obter CSV Detidos');
+        const text = await res.text(); 
+        const rows = Papa.parse(text, { skipEmptyLines:'greedy' }).data;
         const hasHeader = rows[0]?.some?.(c=> String(c).toLowerCase().includes('tipo'));
         const body = hasHeader ? rows.slice(1) : rows;
         const agg = {};
@@ -481,12 +488,8 @@
 
     /* ===== Inicialização ===== */
     window.addEventListener('load', ()=>{
-      // Desktop: começa colapsado (já aplicado acima). Mobile: drawer fechado.
-      // Deixa Ocorrências visível e carrega
       document.getElementById('ocorrencias-section').classList.remove('hidden');
       fetchOcorrencias();
-
-      // Clique SPA padrão: já está no addEventListener do nav (acima)
     });
   </script>
 </body>
